@@ -106,7 +106,7 @@
 
         let allDonors = [];
 
-        // ফায়ারবেস থেকে ডেটা লোড করার ফাংশন
+        // ফায়ারবেস থেকে ডেটা লোড করা
         async function loadDonors() {
             try {
                 const res = await fetch(DB_URL);
@@ -115,16 +115,18 @@
                 allDonors = [];
                 if (data) {
                     Object.keys(data).forEach(key => {
-                        allDonors.push({ id: key, ...data[key] });
+                        if (data[key] && data[key].name) {
+                            allDonors.push({ id: key, ...data[key] });
+                        }
                     });
                 }
                 displayDonors();
             } catch (err) {
-                document.getElementById('donorList').innerHTML = '<p style="text-align:center; grid-column: 1/-1;">ডেটা লোড করতে সমস্যা হয়েছে। রিফ্রেশ দিন।</p>';
+                document.getElementById('donorList').innerHTML = '<p style="text-align:center; grid-column: 1/-1;">ডেটা লোড করতে সমস্যা হয়েছে।</p>';
             }
         }
 
-        // নতুন ডোনার ফায়ারবেসে যুক্ত করার ফাংশন
+        // নতুন ডোনার সেভ করা
         document.getElementById('donorForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -152,7 +154,7 @@
                     document.getElementById('donorForm').reset();
                     await loadDonors();
                 } else {
-                    alert("সেভ হতে সমস্যা হয়েছে! দয়া করে আবার চেষ্টা করুন।");
+                    alert("সেভ হতে সমস্যা হয়েছে! দয়া করে ফায়ারবেস রুলস চেক করুন।");
                 }
             } catch (err) {
                 alert("নেটওয়ার্ক সমস্যা! আপনার ইন্টারনেট কানেকশন চেক করুন।");
@@ -162,7 +164,7 @@
             }
         });
 
-        // ডোনার ফিল্টার ও দেখানোর ফাংশন
+        // ডোনার ফিল্টার ও প্রদর্শন
         function displayDonors() {
             const groupFilter = document.getElementById('filterGroup').value;
             const locationFilter = document.getElementById('filterLocation').value.toLowerCase();
@@ -185,10 +187,10 @@
                 const card = document.createElement('div');
                 card.className = 'donor-card';
                 card.innerHTML = `
-                    <span class="blood-badge">${donor.bloodGroup}</span>
-                    <h3 style="margin:0 0 10px 0;">${donor.name}</h3>
-                    <p style="margin: 5px 0;">📍 <strong>ঠিকানা:</strong> ${donor.location}</p>
-                    <a href="tel:${donor.phone}" class="btn-call">📞 কল করুন (${donor.phone})</a>
+                    <span class="blood-badge">${donor.bloodGroup || 'N/A'}</span>
+                    <h3 style="margin:0 0 10px 0;">${donor.name || 'নাম নেই'}</h3>
+                    <p style="margin: 5px 0;">📍 <strong>ঠিকানা:</strong> ${donor.location || 'অজানা'}</p>
+                    <a href="tel:${donor.phone || '#'}" class="btn-call">📞 কল করুন (${donor.phone || 'নম্বর নেই'})</a>
                 `;
                 donorList.appendChild(card);
             });
@@ -197,7 +199,7 @@
         document.getElementById('filterGroup').addEventListener('change', displayDonors);
         document.getElementById('filterLocation').addEventListener('input', displayDonors);
 
-        // পেজ লোড হলে ডোনার ডেটা আনা হবে
+        // পেজ লোড হলে ডেটা ফেচ করা
         loadDonors();
     </script>
 </body>
