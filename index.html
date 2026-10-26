@@ -16,12 +16,11 @@
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { margin: 0; padding: 0; background-color: #f4f6f9; color: #333; }
         
-        /* হেডার ডিজাইন ও পজিশনিং */
+        /* হেডার ডিজাইন ও অ্যানিমেটেড গ্রাফিক্স */
         header { background: #d9534f; color: white; text-align: center; padding: 40px 15px; position: relative; overflow: hidden; }
         header h1 { margin: 0; font-size: 2.3em; position: relative; z-index: 2; }
         header p { margin-top: 8px; font-size: 1.1em; opacity: 0.95; position: relative; z-index: 2; }
 
-        /* অ্যানিমেটেড ব্লাড ড্রপ গ্রাফিক্স স্টাইল (বাম ও ডান পাশ) */
         .blood-icon-left, .blood-icon-right {
             position: absolute;
             top: 50%;
@@ -31,23 +30,15 @@
             animation: pulseAnim 1.5s infinite ease-in-out;
             z-index: 1;
         }
+        .blood-icon-left { left: 8%; }
+        .blood-icon-right { right: 8%; }
 
-        .blood-icon-left {
-            left: 8%;
-        }
-
-        .blood-icon-right {
-            right: 8%;
-        }
-
-        /* অ্যানিমেশন ইফেক্ট */
         @keyframes pulseAnim {
             0% { transform: translateY(-50%) scale(1); opacity: 0.7; }
             50% { transform: translateY(-50%) scale(1.2); opacity: 1; text-shadow: 0 0 15px rgba(255,255,255,0.8); }
             100% { transform: translateY(-50%) scale(1); opacity: 0.7; }
         }
 
-        /* মোবাইল স্ক্রিনের জন্য গ্রাফিক্স এডজাস্টমেন্ট */
         @media (max-width: 600px) {
             .blood-icon-left { left: 3%; font-size: 2.2em; }
             .blood-icon-right { right: 3%; font-size: 2.2em; }
@@ -55,6 +46,7 @@
 
         .container { max-width: 900px; margin: 20px auto; padding: 0 15px; }
         .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .emergency-card-box { border: 2px solid #d9534f; background: #fff5f5; }
         h2 { border-bottom: 2px solid #d9534f; padding-bottom: 8px; color: #d9534f; margin-top: 0; }
         .form-group { margin-bottom: 15px; }
         label { display: block; margin-bottom: 5px; font-weight: bold; }
@@ -66,6 +58,7 @@
         .search-box select, .search-box input { flex: 1; min-width: 150px; }
         .donor-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 15px; }
         .donor-card { background: #fafafa; border-left: 5px solid #d9534f; padding: 15px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: relative; }
+        .emergency-item { background: #ffffff; border-left: 5px solid #c9302c; border-top: 2px solid #c9302c; }
         .blood-badge { background: #d9534f; color: white; padding: 4px 10px; border-radius: 20px; font-weight: bold; font-size: 0.9em; position: absolute; top: 15px; right: 15px; }
         .btn-call { display: block; text-align: center; background: #28a745; color: white; text-decoration: none; padding: 8px; border-radius: 5px; margin-top: 10px; font-weight: bold; }
         footer { text-align: center; padding: 20px; background: #333; color: white; margin-top: 40px; }
@@ -75,16 +68,72 @@
 <body>
 
     <header>
-        <!-- দুইপাশে অ্যানিমেটেড ব্লাড ড্রপ গ্রাফিক্স -->
         <div class="blood-icon-left">🩸</div>
         <div class="blood-icon-right">🩸</div>
-        
         <h1>বজরা ব্লাড ডোনেট ক্লাব</h1>
         <p>জরুরী প্রয়োজনে রক্তদান ও জীবন বাঁচানোই আমাদের লক্ষ্য</p>
     </header>
 
     <div class="container">
         
+        <!-- জরুরী রক্তের অনুরোধ পোস্ট করার ফর্ম -->
+        <div class="card emergency-card-box">
+            <h2 style="color: #c9302c;">🚨 জরুরী রক্তের অনুরোধ পোস্ট করুন</h2>
+            <form id="emergencyForm">
+                <div class="form-group">
+                    <label>রোগীর সমস্যা:</label>
+                    <input type="text" id="emProblem" required placeholder="যেমন: অপারেশন / থ্যালাসেমিয়া">
+                </div>
+                <div class="form-group">
+                    <label>রক্তের গ্রুপ:</label>
+                    <select id="emBloodGroup" required>
+                        <option value="">গ্রুপ নির্বাচন করুন</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>রক্তের পরিমাণ:</label>
+                    <input type="text" id="emAmount" required placeholder="যেমন: ২ ব্যাগ">
+                </div>
+                <div class="form-group">
+                    <label>রক্তদানের তারিখ:</label>
+                    <input type="date" id="emDate" required>
+                </div>
+                <div class="form-group">
+                    <label>রক্তদানের সময়:</label>
+                    <input type="time" id="emTime" required>
+                </div>
+                <div class="form-group">
+                    <label>রক্তপ্রদানের স্থান:</label>
+                    <input type="text" id="emLocation" required placeholder="যেমন: বজরা হসপিটাল, নোয়াখালী">
+                </div>
+                <div class="form-group">
+                    <label>যোগাযোগের ফোন নম্বর:</label>
+                    <input type="tel" id="emPhone" required placeholder="01700000000">
+                </div>
+                <div class="form-group">
+                    <label>রেফারেন্স (নাম ও মোবাইল নম্বর):</label>
+                    <input type="text" id="emReference" required placeholder="যেমন: নাফিজ, বারাহিনগর - 01700000000">
+                </div>
+                <button type="submit" id="emSubmitBtn" style="background: #c9302c;">জরুরী অনুরোধ প্রকাশ করুন</button>
+            </form>
+        </div>
+
+        <!-- জরুরী রক্তের অনুরোধের তালিকা -->
+        <div class="card">
+            <h2>🚨 জরুরী রক্তের অনুরোধসমূহ</h2>
+            <div class="donor-list" id="emergencyList">
+                <div class="loading">জরুরী ডেটা লোড হচ্ছে...</div>
+            </div>
+        </div>
+
         <!-- নতুন ডোনার যুক্ত করার ফর্ম -->
         <div class="card">
             <h2>নতুন রক্তদাতা যুক্ত করুন</h2>
@@ -154,15 +203,15 @@
             databaseURL: "https://bazra-blood-donate-club-web-default-rtdb.asia-southeast1.firebasedatabase.app"
         };
 
-        // ফায়ারবেস ইনিশিয়ালাইজ করা
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
         const db = firebase.database();
 
         let allDonors = [];
+        let allEmergencies = [];
 
-        // রিয়েলটাইম ডেটা লোড করা
+        // ডোনার ডেটা লোড করা
         function loadDonors() {
             db.ref('donors').on('value', (snapshot) => {
                 const data = snapshot.val();
@@ -175,15 +224,28 @@
                     });
                 }
                 displayDonors();
-            }, (error) => {
-                document.getElementById('donorList').innerHTML = '<p style="text-align:center; grid-column: 1/-1;">ডেটা লোড করতে সমস্যা হয়েছে।</p>';
+            });
+        }
+
+        // জরুরী অনুরোধ ডেটা লোড করা
+        function loadEmergencies() {
+            db.ref('emergencies').on('value', (snapshot) => {
+                const data = snapshot.val();
+                allEmergencies = [];
+                if (data) {
+                    Object.keys(data).forEach(key => {
+                        if (data[key] && data[key].problem) {
+                            allEmergencies.push({ id: key, ...data[key] });
+                        }
+                    });
+                }
+                displayEmergencies();
             });
         }
 
         // নতুন ডোনার সেভ করা
         document.getElementById('donorForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            
             const submitBtn = document.getElementById('submitBtn');
             submitBtn.disabled = true;
             submitBtn.innerText = "সেভ হচ্ছে...";
@@ -198,7 +260,7 @@
 
             db.ref('donors').push(newDonor)
                 .then(() => {
-                    alert("রক্তদাতার তথ্য সারাজীবনের জন্য সফলভাবে সেভ হয়ে গেছে!");
+                    alert("রক্তদাতার তথ্য সফলভাবে সেভ হয়ে গেছে!");
                     document.getElementById('donorForm').reset();
                 })
                 .catch((error) => {
@@ -210,7 +272,40 @@
                 });
         });
 
-        // ডোনার ফিল্টার ও প্রদর্শন
+        // জরুরী অনুরোধ সেভ করা
+        document.getElementById('emergencyForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const emSubmitBtn = document.getElementById('emSubmitBtn');
+            emSubmitBtn.disabled = true;
+            emSubmitBtn.innerText = "পোস্ট হচ্ছে...";
+
+            const newEmergency = {
+                problem: document.getElementById('emProblem').value,
+                bloodGroup: document.getElementById('emBloodGroup').value,
+                amount: document.getElementById('emAmount').value,
+                date: document.getElementById('emDate').value,
+                time: document.getElementById('emTime').value,
+                location: document.getElementById('emLocation').value,
+                phone: document.getElementById('emPhone').value,
+                reference: document.getElementById('emReference').value,
+                timestamp: Date.now()
+            };
+
+            db.ref('emergencies').push(newEmergency)
+                .then(() => {
+                    alert("জরूरी রক্তের অনুরোধ সফলভাবে প্রকাশিত হয়েছে!");
+                    document.getElementById('emergencyForm').reset();
+                })
+                .catch((error) => {
+                    alert("পোস্ট করতে সমস্যা হয়েছে: " + error.message);
+                })
+                .finally(() => {
+                    emSubmitBtn.disabled = false;
+                    emSubmitBtn.innerText = "জরুরী অনুরোধ প্রকাশ করুন";
+                });
+        });
+
+        // ডোনার প্রদর্শন
         function displayDonors() {
             const groupFilter = document.getElementById('filterGroup').value;
             const locationFilter = document.getElementById('filterLocation').value.toLowerCase();
@@ -242,10 +337,38 @@
             });
         }
 
+        // জরুরী অনুরোধসমূহ প্রদর্শন
+        function displayEmergencies() {
+            const emergencyList = document.getElementById('emergencyList');
+            emergencyList.innerHTML = '';
+
+            if (allEmergencies.length === 0) {
+                emergencyList.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">বর্তমানে কোনো জরুরী রক্তের অনুরোধ নেই।</p>';
+                return;
+            }
+
+            allEmergencies.reverse().forEach(em => {
+                const card = document.createElement('div');
+                card.className = 'donor-card emergency-item';
+                card.innerHTML = `
+                    <span class="blood-badge" style="background: #c9302c;">জরুরী!!!</span>
+                    <h3 style="margin:0 0 8px 0; color: #c9302c;">গ্রুপ: ${em.bloodGroup || 'N/A'}</h3>
+                    <p style="margin: 4px 0;">🚨 <strong>রোগীর সমস্যা:</strong> ${em.problem || 'বলা হয়নি'}</p>
+                    <p style="margin: 4px 0;">🩸 <strong>পরিমাণ:</strong> ${em.amount || 'অজানা'}</p>
+                    <p style="margin: 4px 0;">📅 <strong>তারিখ ও সময়:</strong> ${em.date || ''} (${em.time || ''})</p>
+                    <p style="margin: 4px 0;">🏥 <strong>স্থান:</strong> ${em.location || 'অজানা'}</p>
+                    <p style="margin: 4px 0;">👤 <strong>রেফারেন্স:</strong> ${em.reference || 'নেই'}</p>
+                    <a href="tel:${em.phone || '#'}" class="btn-call" style="background: #c9302c;">📞 যোগাযোগ করুন (${em.phone || 'নম্বর নেই'})</a>
+                `;
+                emergencyList.appendChild(card);
+            });
+        }
+
         document.getElementById('filterGroup').addEventListener('change', displayDonors);
         document.getElementById('filterLocation').addEventListener('input', displayDonors);
 
         loadDonors();
+        loadEmergencies();
     </script>
 </body>
 </html>
