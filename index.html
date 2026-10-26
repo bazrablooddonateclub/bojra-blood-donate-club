@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>বজরা ব্লাড ডোনেট ক্লাব</title>
+    <!-- ফায়ারবেস অফিসিয়াল SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { margin: 0; padding: 0; background-color: #f4f6f9; color: #333; }
@@ -102,16 +105,23 @@
     </footer>
 
     <script>
-        // আপনার সঠিক ফায়ারবেস ডেটাবেস লিংক
-        const DB_URL = "https://bazra-blood-donate-club-web-default-rtdb.asia-southeast1.firebasedatabase.app/donors.json";
+        // ফায়ারবেস কনফিগারেশন
+        const firebaseConfig = {
+            databaseURL: "https://bazra-blood-donate-club-web-default-rtdb.asia-southeast1.firebasedatabase.app"
+        };
+
+        // ফায়ারবেস ইনিশিয়ালাইজ করা
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.database();
 
         let allDonors = [];
 
-        async function loadDonors() {
-            try {
-                const res = await fetch(DB_URL);
-                const data = await res.json();
-                
+        // রিয়েলটাইম ডেটা লোড করা
+        function loadDonors() {
+            db.ref('donors').on('value', (snapshot) => {
+                const data = snapshot.val();
                 allDonors = [];
                 if (data) {
                     Object.keys(data).forEach(key => {
@@ -121,12 +131,13 @@
                     });
                 }
                 displayDonors();
-            } catch (err) {
+            }, (error) => {
                 document.getElementById('donorList').innerHTML = '<p style="text-align:center; grid-column: 1/-1;">ডেটা লোড করতে সমস্যা হয়েছে।</p>';
-            }
+            });
         }
 
-        document.getElementById('donorForm').addEventListener('submit', async function(e) {
+        // নতুন ডোনার সেভ করা
+        document.getElementById('donorForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
             const submitBtn = document.getElementById('submitBtn');
@@ -141,28 +152,21 @@
                 timestamp: Date.now()
             };
 
-            try {
-                const res = await fetch(DB_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(newDonor)
-                });
-
-                if (res.ok) {
+            db.ref('donors').push(newDonor)
+                .then(() => {
                     alert("রক্তদাতার তথ্য সারাজীবনের জন্য সফলভাবে সেভ হয়ে গেছে!");
                     document.getElementById('donorForm').reset();
-                    await loadDonors();
-                } else {
-                    alert("সেভ হতে সমস্যা হয়েছে! দয়া করে আবার চেষ্টা করুন।");
-                }
-            } catch (err) {
-                alert("নেটওয়ার্ক সমস্যা! আপনার ইন্টারনেট কানেকشن চেক করুন।");
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerText = "ডোনার সেভ করুন";
-            }
+                })
+                .catch((error) => {
+                    alert("সেভ হতে সমস্যা হয়েছে: " + error.message);
+                })
+                .finally(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "ডোনার সেভ করুন";
+                });
         });
 
+        // ডোনার ফিল্টার ও প্রদর্শন
         function displayDonors() {
             const groupFilter = document.getElementById('filterGroup').value;
             const locationFilter = document.getElementById('filterLocation').value.toLowerCase();
