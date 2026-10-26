@@ -8,9 +8,23 @@
     <!-- গুগল সার্চ কনসোল ভেরিফিকেশন মেটা ট্যাগ -->
     <meta name="google-site-verification" content="3qYBJfYlz_LylQM5zxP4bQars-cwtLEaMNXCQzGVeW8" />
 
-    <!-- ফায়ারবেস অফিসিয়াল SDK -->
+    <!-- ফায়ারবেস অফিসিয়াল SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <!-- PWA Manifest Link -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- OneSignal Push Notification SDK -->
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <script>
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      OneSignalDeferred.push(async function(OneSignal) {
+        await OneSignal.init({
+          appId: "67287333-0104-4cc9-a28b-f33201fd0c3f",
+        });
+      });
+    </script>
 
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -71,7 +85,7 @@
         <div class="blood-icon-left">🩸</div>
         <div class="blood-icon-right">🩸</div>
         <h1>বজরা ব্লাড ডোনেট ক্লাব</h1>
-        <p>জরুরী প্রয়োজনে রক্তদান ও জীবন বাঁচানোই আমাদের লক্ষ্য</p>
+        <p>জরুরী প্রয়োজনে রক্তদান ও জীবন বাঁচানোই আমাদের লক্ষ্য</p>
     </header>
 
     <div class="container">
@@ -82,7 +96,7 @@
             <form id="emergencyForm">
                 <div class="form-group">
                     <label>রোগীর সমস্যা:</label>
-                    <input type="text" id="emProblem" required placeholder="যেমন: অপারেশন / থ্যালাসেমিয়া">
+                    <input type="text" id="emProblem" required placeholder="যেমন: অপারেশন / থ্যালাসেমিয়া">
                 </div>
                 <div class="form-group">
                     <label>রক্তের গ্রুপ:</label>
@@ -107,12 +121,12 @@
                     <input type="date" id="emDate" required>
                 </div>
                 <div class="form-group">
-                    <label>রক্তদানের সময়:</label>
+                    <label>রক্তদানের সময়:</label>
                     <input type="time" id="emTime" required>
                 </div>
                 <div class="form-group">
                     <label>রক্তপ্রদানের স্থান:</label>
-                    <input type="text" id="emLocation" required placeholder="যেমন: বজরা হসপিটাল, নোয়াখালী">
+                    <input type="text" id="emLocation" required placeholder="যেমন: বজরা হসপিটাল, নোয়াখালী">
                 </div>
                 <div class="form-group">
                     <label>রেফারেন্সের নাম:</label>
@@ -143,7 +157,7 @@
                     <input type="text" id="name" required placeholder="যেমন: সৈয়দ ইমরান হোসেন নাফিস">
                 </div>
                 <div class="form-group">
-                    <label>বয়স:</label>
+                    <label>বয়স:</label>
                     <input type="number" id="age" required placeholder="যেমন: ২৫" min="18" max="65">
                 </div>
                 <div class="form-group">
@@ -187,7 +201,7 @@
                     <option value="AB+">AB+</option>
                     <option value="AB-">AB-</option>
                 </select>
-                <input type="text" id="filterLocation" placeholder="এলাকা দিয়ে খুঁজুন...">
+                <input type="text" id="filterLocation" placeholder="এলাকা দিয়ে খুঁজুন...">
             </div>
 
             <div class="donor-list" id="donorList">
@@ -202,7 +216,7 @@
     </footer>
 
     <script>
-        // ফায়ারবেস কনফিগারেশন
+        // ফায়ারবেস কনফিগারেশন
         const firebaseConfig = {
             databaseURL: "https://bazra-blood-donate-club-web-default-rtdb.asia-southeast1.firebasedatabase.app"
         };
@@ -265,11 +279,11 @@
 
             db.ref('donors').push(newDonor)
                 .then(() => {
-                    alert("রক্তদাতার তথ্য সফলভাবে সেভ হয়ে গেছে!");
+                    alert("রক্তদাতার তথ্য সফলভাবে সেভ হয়ে গেছে!");
                     document.getElementById('donorForm').reset();
                 })
                 .catch((error) => {
-                    alert("সেভ হতে সমস্যা হয়েছে: " + error.message);
+                    alert("সেভ হতে সমস্যা হয়েছে: " + error.message);
                 })
                 .finally(() => {
                     submitBtn.disabled = false;
@@ -298,11 +312,11 @@
 
             db.ref('emergencies').push(newEmergency)
                 .then(() => {
-                    alert("জরুরী রক্তের অনুরোধ সফলভাবে প্রকাশিত হয়েছে!");
+                    alert("জরুরী রক্তের অনুরোধ সফলভাবে প্রকাশিত হয়েছে!");
                     document.getElementById('emergencyForm').reset();
                 })
                 .catch((error) => {
-                    alert("পোস্ট করতে সমস্যা হয়েছে: " + error.message);
+                    alert("পোস্ট করতে সমস্যা হয়েছে: " + error.message);
                 })
                 .finally(() => {
                     emSubmitBtn.disabled = false;
@@ -325,7 +339,7 @@
             });
 
             if (filtered.length === 0) {
-                donorList.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">কোনো রক্তদাতার তথ্য পাওয়া যায়নি।</p>';
+                donorList.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">কোনো রক্তদাতার তথ্য পাওয়া যায়নি।</p>';
                 return;
             }
 
@@ -335,7 +349,7 @@
                 card.innerHTML = `
                     <span class="blood-badge">${donor.bloodGroup || 'N/A'}</span>
                     <h3 style="margin:0 0 10px 0;">${donor.name || 'নাম নেই'}</h3>
-                    <p style="margin: 5px 0;">🎂 <strong>বয়স:</strong> ${donor.age ? donor.age + ' বছর' : 'অজানা'}</p>
+                    <p style="margin: 5px 0;">🎂 <strong>বয়স:</strong> ${donor.age ? donor.age + ' বছর' : 'অজানা'}</p>
                     <p style="margin: 5px 0;">📍 <strong>ঠিকানা:</strong> ${donor.location || 'অজানা'}</p>
                     <a href="tel:${donor.phone || '#'}" class="btn-call">📞 কল করুন (${donor.phone || 'নম্বর নেই'})</a>
                 `;
@@ -359,9 +373,9 @@
                 card.innerHTML = `
                     <span class="blood-badge" style="background: #c9302c;">জরুরী!!!</span>
                     <h3 style="margin:0 0 8px 0; color: #c9302c;">গ্রুপ: ${em.bloodGroup || 'N/A'}</h3>
-                    <p style="margin: 4px 0;">🚨 <strong>রোগীর সমস্যা:</strong> ${em.problem || 'বলা হয়নি'}</p>
+                    <p style="margin: 4px 0;">🚨 <strong>রোগীর সমস্যা:</strong> ${em.problem || 'বলা হয়নি'}</p>
                     <p style="margin: 4px 0;">🩸 <strong>পরিমাণ:</strong> ${em.amount || 'অজানা'}</p>
-                    <p style="margin: 4px 0;">📅 <strong>তারিখ ও সময়:</strong> ${em.date || ''} (${em.time || ''})</p>
+                    <p style="margin: 4px 0;">📅 <strong>তারিখ ও সময়:</strong> ${em.date || ''} (${em.time || ''})</p>
                     <p style="margin: 4px 0;">🏥 <strong>স্থান:</strong> ${em.location || 'অজানা'}</p>
                     <p style="margin: 4px 0;">👤 <strong>রেফারেন্স:</strong> ${em.refName || 'নেই'}</p>
                     <a href="tel:${em.refPhone || '#'}" class="btn-call" style="background: #c9302c;">📞 কল করুন (${em.refPhone || 'নম্বর নেই'})</a>
