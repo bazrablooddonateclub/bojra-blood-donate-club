@@ -102,32 +102,29 @@
     </footer>
 
     <script>
-        const BIN_ID = '6720d29ae41b4d34e44af207'; // Lifetime free cloud storage
-        const API_KEY = '$2a$10$wQ78mZ96h48qUjYv.m8uVOY5.k.2J4fB3L3J3J3J3J3J3J3J3J3J3';
-        const URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+        const DB_URL = "https://bojra-blood-default-rtdb.asia-southeast1.firebasedatabase.app/donors.json";
 
         let allDonors = [];
 
-        // ডেটা লোড করার ফাংশন
+        // ফায়ারবেস থেকে ডেটা লোড করার ফাংশন
         async function loadDonors() {
             try {
-                const res = await fetch(URL + '/latest');
+                const res = await fetch(DB_URL);
                 const data = await res.json();
-                allDonors = data.record.donors || [];
+                
+                allDonors = [];
+                if (data) {
+                    Object.keys(data).forEach(key => {
+                        allDonors.push({ id: key, ...data[key] });
+                    });
+                }
                 displayDonors();
             } catch (err) {
-                // ব্রাউজার লোকাল ব্যাকআপ
-                const localData = localStorage.getItem('bojra_donors');
-                if(localData) {
-                    allDonors = JSON.parse(localData);
-                    displayDonors();
-                } else {
-                    document.getElementById('donorList').innerHTML = '<p style="text-align:center; grid-column: 1/-1;">এখনো কোনো ডোনার যুক্ত করা হয়নি।</p>';
-                }
+                document.getElementById('donorList').innerHTML = '<p style="text-align:center; grid-column: 1/-1;">ডেটা লোড করতে সমস্যা হয়েছে। রিফ্রেশ দিন।</p>';
             }
         }
 
-        // নতুন ডোনার যুক্ত করা
+        // নতুন ডোনার ফায়ারবেসে যুক্ত করার ফাংশন
         document.getElementById('donorForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -143,30 +140,29 @@
                 timestamp: Date.now()
             };
 
-            allDonors.unshift(newDonor);
-
-            // লোকাল সেভ
-            localStorage.setItem('bojra_donors', JSON.stringify(allDonors));
-
-            // ক্লাউড সেভ
             try {
-                await fetch(URL, {
-                    method: 'PUT',
+                const res = await fetch(DB_URL, {
+                    method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ donors: allDonors })
+                    body: JSON.stringify(newDonor)
                 });
-                alert("রক্তদাতার তথ্য সারাজীবনের জন্য সেভ হয়ে গেছে!");
-            } catch(err) {
-                alert("তথ্যটি লোকাল স্টোরেজে সেভ হয়েছে!");
-            }
 
-            submitBtn.disabled = false;
-            submitBtn.innerText = "ডোনার সেভ করুন";
-            document.getElementById('donorForm').reset();
-            displayDonors();
+                if (res.ok) {
+                    alert("রক্তদাতার তথ্য সারাজীবনের জন্য সফলভাবে সেভ হয়ে গেছে!");
+                    document.getElementById('donorForm').reset();
+                    await loadDonors();
+                } else {
+                    alert("সেভ হতে সমস্যা হয়েছে! দয়া করে আবার চেষ্টা করুন।");
+                }
+            } catch (err) {
+                alert("নেটওয়ার্ক সমস্যা! আপনার ইন্টারনেট কানেকশন চেক করুন।");
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "ডোনার সেভ করুন";
+            }
         });
 
-        // ডোনার দেখানোর ফাংশন
+        // ডোনার ফিল্টার ও দেখানোর ফাংশন
         function displayDonors() {
             const groupFilter = document.getElementById('filterGroup').value;
             const locationFilter = document.getElementById('filterLocation').value.toLowerCase();
@@ -176,16 +172,16 @@
 
             const filtered = allDonors.filter(donor => {
                 const matchGroup = groupFilter === '' || donor.bloodGroup === groupFilter;
-                const matchLocation = donor.location.toLowerCase().includes(locationFilter);
+                const matchLocation = donor.location ? donor.location.toLowerCase().includes(locationFilter) : true;
                 return matchGroup && matchLocation;
             });
 
             if (filtered.length === 0) {
-                donorList.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">কোনো তথ্য পাওয়া যায়নি।</p>';
+                donorList.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">কোনো রক্তদাতার তথ্য পাওয়া যায়নি।</p>';
                 return;
             }
 
-            filtered.forEach(donor => {
+            filtered.reverse().forEach(donor => {
                 const card = document.createElement('div');
                 card.className = 'donor-card';
                 card.innerHTML = `
@@ -201,7 +197,7 @@
         document.getElementById('filterGroup').addEventListener('change', displayDonors);
         document.getElementById('filterLocation').addEventListener('input', displayDonors);
 
-        // পেজ লোড হলে ডোনার দেখাবে
+        // পেজ লোড হলে ডোনার ডেটা আনা হবে
         loadDonors();
     </script>
 </body>
