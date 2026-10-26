@@ -115,12 +115,12 @@
                     <input type="text" id="emLocation" required placeholder="যেমন: বজরা হসপিটাল, নোয়াখালী">
                 </div>
                 <div class="form-group">
-                    <label>যোগাযোগের ফোন নম্বর:</label>
-                    <input type="tel" id="emPhone" required placeholder="01700000000">
+                    <label>রেফারেন্সের নাম:</label>
+                    <input type="text" id="emRefName" required placeholder="যেমন: নাফিজ, বারাহিনগর">
                 </div>
                 <div class="form-group">
-                    <label>রেফারেন্স (নাম ও মোবাইল নম্বর):</label>
-                    <input type="text" id="emReference" required placeholder="যেমন: নাফিজ, বারাহিনগর - 01700000000">
+                    <label>রেফারেন্সের মোবাইল নম্বর:</label>
+                    <input type="tel" id="emRefPhone" required placeholder="01700000000">
                 </div>
                 <button type="submit" id="emSubmitBtn" style="background: #c9302c;">জরুরী অনুরোধ প্রকাশ করুন</button>
             </form>
@@ -291,8 +291,8 @@
                 date: document.getElementById('emDate').value,
                 time: document.getElementById('emTime').value,
                 location: document.getElementById('emLocation').value,
-                phone: document.getElementById('emPhone').value,
-                reference: document.getElementById('emReference').value,
+                refName: document.getElementById('emRefName').value,
+                refPhone: document.getElementById('emRefPhone').value,
                 timestamp: Date.now()
             };
 
@@ -363,8 +363,8 @@
                     <p style="margin: 4px 0;">🩸 <strong>পরিমাণ:</strong> ${em.amount || 'অজানা'}</p>
                     <p style="margin: 4px 0;">📅 <strong>তারিখ ও সময়:</strong> ${em.date || ''} (${em.time || ''})</p>
                     <p style="margin: 4px 0;">🏥 <strong>স্থান:</strong> ${em.location || 'অজানা'}</p>
-                    <p style="margin: 4px 0;">👤 <strong>রেফারেন্স:</strong> ${em.reference || 'নেই'}</p>
-                    <a href="tel:${em.phone || '#'}" class="btn-call" style="background: #c9302c;">📞 যোগাযোগ করুন (${em.phone || 'নম্বর নেই'})</a>
+                    <p style="margin: 4px 0;">👤 <strong>রেফারেন্স:</strong> ${em.refName || 'নেই'}</p>
+                    <a href="tel:${em.refPhone || '#'}" class="btn-call" style="background: #c9302c;">📞 কল করুন (${em.refPhone || 'নম্বর নেই'})</a>
                 `;
                 emergencyList.appendChild(card);
             });
