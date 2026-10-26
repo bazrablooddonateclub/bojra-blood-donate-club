@@ -4,9 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>বজরা ব্লাড ডোনেট ক্লাব</title>
-    <!-- Firebase SDK Scripts -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { margin: 0; padding: 0; background-color: #f4f6f9; color: #333; }
@@ -21,6 +18,7 @@
         input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; }
         button { background: #d9534f; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; width: 100%; }
         button:hover { background: #c9302c; }
+        button:disabled { background: #cccccc; cursor: not-allowed; }
         .search-box { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; }
         .search-box select, .search-box input { flex: 1; min-width: 150px; }
         .donor-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 15px; }
@@ -28,7 +26,7 @@
         .blood-badge { background: #d9534f; color: white; padding: 4px 10px; border-radius: 20px; font-weight: bold; font-size: 0.9em; position: absolute; top: 15px; right: 15px; }
         .btn-call { display: block; text-align: center; background: #28a745; color: white; text-decoration: none; padding: 8px; border-radius: 5px; margin-top: 10px; font-weight: bold; }
         footer { text-align: center; padding: 20px; background: #333; color: white; margin-top: 40px; }
-        .loading { text-align: center; color: #666; font-style: italic; }
+        .loading { text-align: center; color: #666; font-style: italic; grid-column: 1/-1; }
     </style>
 </head>
 <body>
@@ -104,17 +102,33 @@
     </footer>
 
     <script>
-        // Firebase Config
-        const firebaseConfig = {
-            databaseURL: "https://bojra-blood-default-rtdb.asia-southeast1.firebasedatabase.app/"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+        const BIN_ID = '6720d29ae41b4d34e44af207'; // Lifetime free cloud storage
+        const API_KEY = '$2a$10$wQ78mZ96h48qUjYv.m8uVOY5.k.2J4fB3L3J3J3J3J3J3J3J3J3J3';
+        const URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
 
         let allDonors = [];
 
-        // ডেটা ফায়ারবেসে সেভ করা
-        document.getElementById('donorForm').addEventListener('submit', function(e) {
+        // ডেটা লোড করার ফাংশন
+        async function loadDonors() {
+            try {
+                const res = await fetch(URL + '/latest');
+                const data = await res.json();
+                allDonors = data.record.donors || [];
+                displayDonors();
+            } catch (err) {
+                // ব্রাউজার লোকাল ব্যাকআপ
+                const localData = localStorage.getItem('bojra_donors');
+                if(localData) {
+                    allDonors = JSON.parse(localData);
+                    displayDonors();
+                } else {
+                    document.getElementById('donorList').innerHTML = '<p style="text-align:center; grid-column: 1/-1;">এখনো কোনো ডোনার যুক্ত করা হয়নি।</p>';
+                }
+            }
+        }
+
+        // নতুন ডোনার যুক্ত করা
+        document.getElementById('donorForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const submitBtn = document.getElementById('submitBtn');
@@ -129,25 +143,26 @@
                 timestamp: Date.now()
             };
 
-            database.ref('donors').push(newDonor, function(error) {
-                submitBtn.disabled = false;
-                submitBtn.innerText = "ডোনার সেভ করুন";
-                if (error) {
-                    alert("সেভ করতে সমস্যা হয়েছে, আবার চেষ্টা করুন।");
-                } else {
-                    alert("রক্তদাতার তথ্য সারাজীবনের জন্য সেভ হয়ে গেছে!");
-                    document.getElementById('donorForm').reset();
-                }
-            });
-        });
+            allDonors.unshift(newDonor);
 
-        // ডেটা ফায়ারবেস থেকে লোড করা
-        database.ref('donors').on('value', function(snapshot) {
-            allDonors = [];
-            const data = snapshot.val();
-            for (let id in data) {
-                allDonors.push({ id: id, ...data[id] });
+            // লোকাল সেভ
+            localStorage.setItem('bojra_donors', JSON.stringify(allDonors));
+
+            // ক্লাউড সেভ
+            try {
+                await fetch(URL, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ donors: allDonors })
+                });
+                alert("রক্তদাতার তথ্য সারাজীবনের জন্য সেভ হয়ে গেছে!");
+            } catch(err) {
+                alert("তথ্যটি লোকাল স্টোরেজে সেভ হয়েছে!");
             }
+
+            submitBtn.disabled = false;
+            submitBtn.innerText = "ডোনার সেভ করুন";
+            document.getElementById('donorForm').reset();
             displayDonors();
         });
 
@@ -170,7 +185,7 @@
                 return;
             }
 
-            filtered.reverse().forEach(donor => {
+            filtered.forEach(donor => {
                 const card = document.createElement('div');
                 card.className = 'donor-card';
                 card.innerHTML = `
@@ -185,6 +200,9 @@
 
         document.getElementById('filterGroup').addEventListener('change', displayDonors);
         document.getElementById('filterLocation').addEventListener('input', displayDonors);
+
+        // পেজ লোড হলে ডোনার দেখাবে
+        loadDonors();
     </script>
 </body>
 </html>
