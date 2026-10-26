@@ -229,12 +229,15 @@
         let allDonors = [];
         let allEmergencies = [];
 
-        // OneSignal Automatic Notification Function
+        // OneSignal Automatic Notification Function (CORS Proxy যুক্ত করা হয়েছে যাতে ব্রাউজার ব্লক না করে)
         function sendPushNotification(bloodGroup, location, amount) {
             const restApiKey = "os_v2_app_m4uhgmybargmtiul6mzad7imh74y5fl2z7sejlutjvcszy4i33tidnldmkdwkoqygqwznocbas2eh6ms4ppxjzka6tzu3gxpxxl5ekq";
             const appId = "67287333-0104-4cc9-a28b-f33201fd0c3f";
 
-            fetch("https://onesignal.com/api/v1/notifications", {
+            const targetUrl = "https://onesignal.com/api/v1/notifications";
+            const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(targetUrl);
+
+            fetch(proxyUrl, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json; charset=utf-8",
@@ -243,8 +246,8 @@
                 body: JSON.stringify({
                     app_id: appId,
                     included_segments: ["All"],
-                    headings: {"en": "🚨 জরুরী " + bloodGroup + " রক্তের প্রয়োজন!"},
-                    contents: {"en": location + "-এ " + amount + " " + bloodGroup + " রক্ত প্রয়োজন। দয়া করে অ্যাপ দেখুন!"}
+                    headings: {"en": "🚨 জরুরী " + bloodGroup + " রক্তের প্রয়োজন!"},
+                    contents: {"en": location + "-এ " + amount + " " + bloodGroup + " রক্ত প্রয়োজন। দয়া করে অ্যাপ দেখুন!"}
                 })
             }).then(res => res.json())
               .then(data => console.log("Notification Sent:", data))
@@ -338,7 +341,7 @@
 
             db.ref('emergencies').push(newEmergency)
                 .then(() => {
-                    // Send Automatic Push Notification
+                    // Send Automatic Push Notification via Proxy
                     sendPushNotification(bg, loc, amt);
                     
                     alert("জরুরী রক্তের অনুরোধ এবং নোটিফিকেশন সফলভাবে পাঠানো হয়েছে!");
