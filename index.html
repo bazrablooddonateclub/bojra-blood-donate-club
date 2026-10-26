@@ -102,11 +102,11 @@
     </footer>
 
     <script>
-        const DB_URL = "https://bojra-blood-default-rtdb.asia-southeast1.firebasedatabase.app/donors.json";
+        // আপনার সঠিক ফায়ারবেস ডেটাবেস লিংক
+        const DB_URL = "https://bazra-blood-donate-club-web-default-rtdb.asia-southeast1.firebasedatabase.app/donors.json";
 
         let allDonors = [];
 
-        // ফায়ারবেস থেকে ডেটা লোড করা
         async function loadDonors() {
             try {
                 const res = await fetch(DB_URL);
@@ -126,7 +126,6 @@
             }
         }
 
-        // নতুন ডোনার সেভ করা
         document.getElementById('donorForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -154,17 +153,16 @@
                     document.getElementById('donorForm').reset();
                     await loadDonors();
                 } else {
-                    alert("সেভ হতে সমস্যা হয়েছে! দয়া করে ফায়ারবেস রুলস চেক করুন।");
+                    alert("সেভ হতে সমস্যা হয়েছে! দয়া করে আবার চেষ্টা করুন।");
                 }
             } catch (err) {
-                alert("নেটওয়ার্ক সমস্যা! আপনার ইন্টারনেট কানেকশন চেক করুন।");
+                alert("নেটওয়ার্ক সমস্যা! আপনার ইন্টারনেট কানেকشن চেক করুন।");
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerText = "ডোনার সেভ করুন";
             }
         });
 
-        // ডোনার ফিল্টার ও প্রদর্শন
         function displayDonors() {
             const groupFilter = document.getElementById('filterGroup').value;
             const locationFilter = document.getElementById('filterLocation').value.toLowerCase();
@@ -199,7 +197,6 @@
         document.getElementById('filterGroup').addEventListener('change', displayDonors);
         document.getElementById('filterLocation').addEventListener('input', displayDonors);
 
-        // পেজ লোড হলে ডেটা ফেচ করা
         loadDonors();
     </script>
 </body>
