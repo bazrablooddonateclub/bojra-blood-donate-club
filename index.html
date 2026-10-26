@@ -16,23 +16,41 @@
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { margin: 0; padding: 0; background-color: #f4f6f9; color: #333; }
         
-        /* হেডার ডিজাইন ও গ্রাফিক্স আইকন */
-        header { background: #d9534f; color: white; text-align: center; padding: 35px 15px; position: relative; }
-        header h1 { margin: 0; font-size: 2.3em; display: flex; align-items: center; justify-content: center; gap: 12px; }
-        header p { margin-top: 8px; font-size: 1.1em; opacity: 0.95; }
-        
-        /* ব্লাড ড্রপ আইকন অ্যানিমেশন স্টাইল */
-        .blood-icon {
-            font-size: 1.1em;
-            background: white;
-            color: #d9534f;
-            width: 45px;
-            height: 45px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        /* হেডার ডিজাইন ও পজিশনিং */
+        header { background: #d9534f; color: white; text-align: center; padding: 40px 15px; position: relative; overflow: hidden; }
+        header h1 { margin: 0; font-size: 2.3em; position: relative; z-index: 2; }
+        header p { margin-top: 8px; font-size: 1.1em; opacity: 0.95; position: relative; z-index: 2; }
+
+        /* অ্যানিমেটেড ব্লাড ড্রপ গ্রাফিক্স স্টাইল (বাম ও ডান পাশ) */
+        .blood-icon-left, .blood-icon-right {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 3em;
+            opacity: 0.85;
+            animation: pulseAnim 1.5s infinite ease-in-out;
+            z-index: 1;
+        }
+
+        .blood-icon-left {
+            left: 8%;
+        }
+
+        .blood-icon-right {
+            right: 8%;
+        }
+
+        /* অ্যানিমেশন ইফেক্ট */
+        @keyframes pulseAnim {
+            0% { transform: translateY(-50%) scale(1); opacity: 0.7; }
+            50% { transform: translateY(-50%) scale(1.2); opacity: 1; text-shadow: 0 0 15px rgba(255,255,255,0.8); }
+            100% { transform: translateY(-50%) scale(1); opacity: 0.7; }
+        }
+
+        /* মোবাইল স্ক্রিনের জন্য গ্রাফিক্স এডজাস্টমেন্ট */
+        @media (max-width: 600px) {
+            .blood-icon-left { left: 3%; font-size: 2.2em; }
+            .blood-icon-right { right: 3%; font-size: 2.2em; }
         }
 
         .container { max-width: 900px; margin: 20px auto; padding: 0 15px; }
@@ -57,11 +75,11 @@
 <body>
 
     <header>
-        <h1>
-            <span class="blood-icon">🩸</span>
-            বজরা ব্লাড ডোনেট ক্লাব
-            <span class="blood-icon">🩸</span>
-        </h1>
+        <!-- দুইপাশে অ্যানিমেটেড ব্লাড ড্রপ গ্রাফিক্স -->
+        <div class="blood-icon-left">🩸</div>
+        <div class="blood-icon-right">🩸</div>
+        
+        <h1>বজরা ব্লাড ডোনেট ক্লাব</h1>
         <p>জরুরী প্রয়োজনে রক্তদান ও জীবন বাঁচানোই আমাদের লক্ষ্য</p>
     </header>
 
