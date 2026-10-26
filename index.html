@@ -15,9 +15,26 @@
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { margin: 0; padding: 0; background-color: #f4f6f9; color: #333; }
-        header { background: #d9534f; color: white; text-align: center; padding: 30px 15px; }
-        header h1 { margin: 0; font-size: 2.2em; }
-        header p { margin-top: 8px; font-size: 1.1em; opacity: 0.9; }
+        
+        /* হেডার ডিজাইন ও গ্রাফিক্স আইকন */
+        header { background: #d9534f; color: white; text-align: center; padding: 35px 15px; position: relative; }
+        header h1 { margin: 0; font-size: 2.3em; display: flex; align-items: center; justify-content: center; gap: 12px; }
+        header p { margin-top: 8px; font-size: 1.1em; opacity: 0.95; }
+        
+        /* ব্লাড ড্রপ আইকন অ্যানিমেশন স্টাইল */
+        .blood-icon {
+            font-size: 1.1em;
+            background: white;
+            color: #d9534f;
+            width: 45px;
+            height: 45px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
         .container { max-width: 900px; margin: 20px auto; padding: 0 15px; }
         .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
         h2 { border-bottom: 2px solid #d9534f; padding-bottom: 8px; color: #d9534f; margin-top: 0; }
@@ -40,7 +57,11 @@
 <body>
 
     <header>
-        <h1>বজরা ব্লাড ডোনেট ক্লাব</h1>
+        <h1>
+            <span class="blood-icon">🩸</span>
+            বজরা ব্লাড ডোনেট ক্লাব
+            <span class="blood-icon">🩸</span>
+        </h1>
         <p>জরুরী প্রয়োজনে রক্তদান ও জীবন বাঁচানোই আমাদের লক্ষ্য</p>
     </header>
 
