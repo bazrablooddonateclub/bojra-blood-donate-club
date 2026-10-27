@@ -156,7 +156,7 @@
 
         <!-- রক্তদানের পরিসংখ্যান -->
         <div class="card stats-card-box">
-            <h2 style="color: #17a2b8; border-bottom: 2px solid #17a2b8;">🏆 রক্তদানের পরিসংখ্যান ( কে কত ব্যাগ দিলেন)</h2>
+            <h2 style="color: #17a2b8; border-bottom: 2px solid #17a2b8;">🏆 রক্তদানের পরিসংখ্যান (কে কত ব্যাগ দিলেন)</h2>
             <div class="donor-list" id="donationStatsList">
                 <div class="loading">পরিসংখ্যান লোড হচ্ছে...</div>
             </div>
@@ -255,12 +255,12 @@
             return digits;
         }
 
-        // শুধু নির্দিষ্ট চ্যাট আইডি এবং চ্যানেলে নোটিফিকেশন পাঠানোর ফাংশন (ওয়েবসাইট থেকে ডেটা এন্ট্রি হলে)
+        // সরাসরি চ্যানেলে ও নির্দিষ্ট চ্যাট আইডিতে নোটিফিকেশন পাঠানোর ফাংশন
         function sendTelegramNotification(title, bloodGroup, location, amount, problem, refPhone, extraDetails = "") {
             const botToken = "8975147675:AAGrWXFE4-y_L7Sw55P58PL17ukfUlxHAB0";
             
-            // আপনার টেলিগ্রাম চ্যাট আইডি এবং চ্যানেলের ইউজারনেম এখানে যুক্ত থাকবে:
-            const targets = ["8352480462", "@your_channel_username"]; 
+            // সঠিক চ্যানেলের ইউজারনেম এখানে যুক্ত করা হয়েছে:
+            const targets = ["8352480462", "@bazra_blood_club"]; 
 
             let message = title + "\n\n" +
                           `🩸 *রক্তের গ্রুপ:* ${bloodGroup}\n` +
