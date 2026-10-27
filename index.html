@@ -243,7 +243,6 @@
         let allDonors = [];
         let allEmergencies = [];
 
-        // ফোন নম্বর নিখুঁতভাবে মিল করার জন্য নরমালাইজেশন ফাংশন
         function normalizePhone(phone) {
             if (!phone) return '';
             let digits = phone.replace(/\D/g, '');
@@ -306,7 +305,6 @@
                             const emergency = { id: key, ...data[key] };
                             allEmergencies.push(emergency);
 
-                            // যদি রিকোয়েস্টটি কমপ্লিট থাকে, তবে দাতার নম্বর নরমালাইজ করে লোকালস্টোরেজে সেভ হবে
                             if (emergency.status === "Complete" && emergency.donatedPhone) {
                                 const cleanNum = normalizePhone(emergency.donatedPhone);
                                 if (cleanNum.length >= 10) {
@@ -334,7 +332,6 @@
             });
         }
 
-        // ডোনার সেভ ও এডিট
         document.getElementById('donorForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const submitBtn = document.getElementById('submitBtn');
@@ -373,7 +370,6 @@
             document.getElementById('submitBtn').disabled = false;
         }
 
-        // জরুরী অনুরোধ সেভ ও এডিট
         document.getElementById('emergencyForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const emSubmitBtn = document.getElementById('emSubmitBtn');
@@ -450,7 +446,7 @@
             document.getElementById('emergencyForm').scrollIntoView({ behavior: 'smooth' });
         };
 
-        // রক্তদাতার ৩ মাসের রেস্ট্রিকশন চেক ফাংশন
+        // ৩ মাসের রেস্ট্রিকশন চেক ফাংশন (এখন থেকে ডোনার লিস্ট এবং জরুরি তালিকা উভয় জায়গার জন্যই কাজ করবে)
         window.checkDonorAndCall = function(donorPhone) {
             if (!donorPhone) {
                 alert("মোবাইল নম্বর পাওয়া যায়নি!");
@@ -481,7 +477,7 @@
             }
 
             if (isRestricted) {
-                alert(`⚠️ সতর্কবার্তা!\n\nএই রক্তদাতা গত ৩ মাসের মধ্যে রক্তদান করেছেন। নিয়ম অনুযায়ী তার আরও প্রায় ${remainingDays} দিন পর রক্তদান করার কথা। অনুগ্রহ করে অন্য ডোনার সাথে যোগাযোগ করুন।`);
+                alert(`⚠️ সতর্কবার্তা!\n\nএই নম্বরের রক্তদাতা গত ৩ মাসের মধ্যে রক্তদান করেছেন। নিয়ম অনুযায়ী তার আরও প্রায় ${remainingDays} দিন পর রক্তদান করার কথা। অনুগ্রহ করে অন্য ডোনারের সাথে যোগাযোগ করুন।`);
                 return;
             }
 
@@ -502,7 +498,6 @@
                 const donatedPhone = donorPhone.trim();
                 const cleanPhone = normalizePhone(donatedPhone);
 
-                // দাতার মোবাইল নম্বরের বিপরীতে বর্তমান সময় সেভ করা হলো
                 localStorage.setItem('donor_last_donate_' + cleanPhone, now.toISOString());
 
                 db.ref('emergencies/' + id).update({ 
@@ -637,7 +632,7 @@
                 <p style="margin: 4px 0;">📅 <strong>তারিখ ও সময়:</strong> ${em.date || ''} (${em.time || ''})</p>
                 <p style="margin: 4px 0;">🏥 <strong>স্থান:</strong> ${em.location || 'অজানা'}</p>
                 <p style="margin: 4px 0;">👤 <strong>রেফারেন্স:</strong> ${em.refName || 'নেই'}</p>
-                <a href="tel:${em.refPhone || '#'}" class="btn-call" style="background: ${isComplete ? '#28a745' : '#c9302c'}; text-decoration: none;">📞 কল করুন (${em.refPhone || 'নম্বর নেই'})</a>
+                <button onclick="checkDonorAndCall('${em.refPhone || ''}')" class="btn-call" style="background: ${isComplete ? '#28a745' : '#c9302c'};">📞 কল করুন (${em.refPhone || 'নম্বর নেই'})</button>
                 <button class="status-badge ${statusClass}" onclick="toggleStatus('${em.id}', '${status}', ${emJSON})">${statusText}</button>
                 ${instructionHTML}
                 <button class="btn-edit" onclick="editEmergency('${em.id}')">✏️ অনুরোধ এডিট করুন</button>
