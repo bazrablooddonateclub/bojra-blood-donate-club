@@ -71,7 +71,7 @@
         .status-badge { display: inline-block; padding: 8px 10px; border-radius: 4px; font-weight: bold; font-size: 0.9em; margin-top: 8px; text-align: center; width: 100%; cursor: pointer; border: none; }
         .status-pending { background: #ffc107; color: #333; }
         .status-complete { background: #28a745; color: white; }
-        .instruction-text { font-size: 0.8em; color: #d9534f; text-align: center; margin-top: 4px; font-weight: bold; }
+        .instruction-text { font-size: 0.8em; color: #666; text-align: center; margin-top: 5px; font-style: italic; }
 
         footer { text-align: center; padding: 20px; background: #333; color: white; margin-top: 40px; }
         .loading { text-align: center; color: #666; font-style: italic; grid-column: 1/-1; }
@@ -150,7 +150,7 @@
         <div class="card completed-card-box">
             <h2 style="color: #28a745; border-bottom: 2px solid #28a745;">✅ সম্পন্ন হওয়া রক্তের অনুরোধসমূহ</h2>
             <div class="donor-list" id="completedEmergencyList">
-                <div class="loading">কোনো সম্পন্ন হওয়া ডেটা নেই...</div>
+                <div class="loading">কোনো সম্পন্ন হওয়া অনুরোধ নেই...</div>
             </div>
         </div>
 
@@ -283,41 +283,41 @@
             });
         }
 
-        // প্রতি ৬ ঘণ্টা অন্তর রিমাইন্ডার চেক করার লজিক
-        function checkPendingReminders(emergencies) {
-            const SIX_HOURS = 6 * 60 * 60 * 1000; // ৬ ঘণ্টার মিলিসেকেন্ড
-            const currentTime = Date.now();
-
-            emergencies.forEach(em => {
-                if ((em.status || "Pending") === "Pending") {
-                    const lastReminder = em.lastReminderTime || em.timestamp;
-                    
-                    // যদি শেষ নোটিফিকেশনের পর ৬ ঘণ্টা বা তার বেশি সময় পার হয়ে থাকে
-                    if ((currentTime - lastReminder) >= SIX_HOURS) {
-                        // টেলিগ্রামে রিমাইন্ডার পাঠানো
-                        sendTelegramNotification(em.bloodGroup, em.location, em.amount, em.problem, em.refPhone, true);
-                        
-                        // ফায়ারবেসে শেষ রিমাইন্ডারের সময় আপডেট করা যাতে লুপ না হয়
-                        db.ref('emergencies/' + em.id).update({ lastReminderTime: currentTime });
-                    }
-                }
-            });
-        }
-
-        // জরুরী অনুরোধ ডেটা লোড করা
+        // জরুরী অনুরোধ ডেটা লোড করা + প্রতি ৬ ঘণ্টা অন্তর রিমাইন্ডার চেক
         function loadEmergencies() {
             db.ref('emergencies').on('value', (snapshot) => {
                 const data = snapshot.val();
                 allEmergencies = [];
                 if (data) {
+                    const currentTime = Date.now();
+                    const sixHours = 6 * 60 * 60 * 1000; // ৬ ঘণ্টার মিলিসেকেন্ড
+
                     Object.keys(data).forEach(key => {
                         if (data[key] && data[key].problem) {
-                            allEmergencies.push({ id: key, ...data[key] });
+                            const emergency = { id: key, ...data[key] };
+                            allEmergencies.push(emergency);
+
+                            // যদি স্ট্যাটাস Pending থাকে এবং সর্বশেষ নোটিফিকেশনের পর ৬ ঘণ্টা পার হয়ে থাকে
+                            if ((emergency.status || "Pending") === "Pending") {
+                                const lastNotified = emergency.lastNotified || emergency.timestamp || currentTime;
+                                if (currentTime - lastNotified >= sixHours) {
+                                    // টেলিগ্রামে রিমাইন্ডার পাঠানো
+                                    sendTelegramNotification(
+                                        emergency.bloodGroup, 
+                                        emergency.location, 
+                                        emergency.amount, 
+                                        emergency.problem, 
+                                        emergency.refPhone, 
+                                        true
+                                    );
+                                    // ফায়ারবেসে শেষ নোটিফিকেশনের সময় আপডেট করা
+                                    db.ref('emergencies/' + key).update({ lastNotified: currentTime });
+                                }
+                            }
                         }
                     });
                 }
                 displayEmergencies();
-                checkPendingReminders(allEmergencies);
             });
         }
 
@@ -376,7 +376,7 @@
                 refPhone: rPhone,
                 status: "Pending",
                 timestamp: currentTime,
-                lastReminderTime: currentTime
+                lastNotified: currentTime
             };
 
             db.ref('emergencies').push(newEmergency)
@@ -399,12 +399,11 @@
         // স্ট্যাটাস পরিবর্তন করার ফাংশন (Pending <-> Complete)
         window.toggleStatus = function(id, currentStatus) {
             const newStatus = (currentStatus === "Complete") ? "Pending" : "Complete";
-            const updateData = { status: newStatus };
-            if (newStatus === "Pending") {
-                updateData.lastReminderTime = Date.now(); // আবার পেন্ডিং করলে রিমাইন্ডার কাউন্ট শুরু হবে
-            }
-            db.ref('emergencies/' + id).update(updateData)
-                .catch(err => alert("স্ট্যাটাস আপডেট করতে সমস্যা হয়েছে: " + err.message));
+            db.ref('emergencies/' + id).update({ 
+                status: newStatus,
+                lastNotified: Date.now() 
+            })
+            .catch(err => alert("স্ট্যাটাস আপডেট করতে সমস্যা হয়েছে: " + err.message));
         };
 
         // ডোনার প্রদর্শন
@@ -478,8 +477,8 @@
             const statusClass = isComplete ? "status-complete" : "status-pending";
             const statusText = isComplete ? "✅ Blood Donate Complete" : "⏳ Blood Donate Pending";
             
-            // আপনার চাওয়া ইন্সট্রাকশন টেক্সট যুক্ত করা হলো[cite: 5]
-            const instructionHTML = isComplete ? '' : '<div class="instruction-text">[রক্ত প্রদান সম্পূর্ণ হলে এই বাটন এ ক্লিক করুণ]</div>';
+            // ইন্সট্রাকশন টেক্সট কেবল Pending থাকলেই দেখাবে
+            const instructionHTML = isComplete ? '' : '<div class="instruction-text">[ রক্ত প্রদান সম্পূর্ণ হলে এই বাটন এ ক্লিক করবেন ]</div>';
 
             const card = document.createElement('div');
             card.className = isComplete ? 'donor-card completed-item' : 'donor-card emergency-item';
