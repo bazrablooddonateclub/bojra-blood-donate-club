@@ -293,6 +293,17 @@
                             const emergency = { id: key, ...data[key] };
                             allEmergencies.push(emergency);
 
+                            // যদি রিকোয়েস্টটি কমপ্লিট থাকে, তবে এর দাতার নম্বরটি লোকালস্টোরেজে নিশ্চিতভাবে সেভ করে রাখা হবে (৩ মাসের রেস্ট্রিকশনের জন্য)
+                            if (emergency.status === "Complete" && emergency.donatedPhone) {
+                                const cleanNum = emergency.donatedPhone.replace(/\D/g, '').slice(-11);
+                                if (cleanNum.length >= 10) {
+                                    // যদি অলরেডি ডেট না থাকে, তবে বর্তমান সময় বা একটি ডিফল্ট সময় সেট হবে
+                                    if (!localStorage.getItem('last_donate_date_' + cleanNum)) {
+                                        localStorage.setItem('last_donate_date_' + cleanNum, new Date().toISOString());
+                                    }
+                                }
+                            }
+
                             if ((emergency.status || "Pending") === "Pending") {
                                 const lastNotified = emergency.lastNotified || emergency.timestamp || currentTime;
                                 if (currentTime - lastNotified >= sixHours) {
@@ -427,24 +438,43 @@
             document.getElementById('emergencyForm').scrollIntoView({ behavior: 'smooth' });
         };
 
-        // ৩ মাসের রেস্ট্রিকশন চেক ফাংশন (মোবাইল নম্বর ক্লিন করে চেক করবে)
-        window.checkDonorAndCall = function(donorPhone) {
-            const cleanPhone = donorPhone ? donorPhone.replace(/\s+/g, '') : '';
-            const lastDateStr = localStorage.getItem('last_donate_date_' + cleanPhone);
-            
-            if (lastDateStr) {
-                const lastDate = new Date(lastDateStr);
-                const now = new Date();
-                const diffTime = now - lastDate;
-                const diffDays = diffTime / (1000 * 60 * 60 * 24);
+        // ৩ মাসের রেস্ট্রিকশন চেক ফাংশন (মোবাইল নম্বরের শেষ ১০-১১ ডিজিট মিলিয়ে নিখুঁতভাবে চেক করবে)
+        window.checkDonorAndCall = function(targetPhone) {
+            if (!targetPhone) {
+                alert("মোবাইল নম্বর পাওয়া যায়নি!");
+                return;
+            }
 
-                if (diffDays < 90) {
-                    const remainingDays = Math.ceil(90 - diffDays);
-                    alert(`⚠️ সতর্কবার্তা!\n\nএই রক্তদাতা গত ৩ মাসের মধ্যে রক্তদান করেছেন। নিয়ম অনুযায়ী তার আরও প্রায় ${remainingDays} দিন পর রক্তদান করার কথা। অনুগ্রহ করে অন্য ডোনার সাথে যোগাযোগ করুন।`);
-                    return;
+            const cleanTarget = targetPhone.replace(/\D/g, '').slice(-11);
+            let isRestricted = false;
+            let remainingDays = 0;
+
+            // ব্রাউজারের সমস্ত লোকালস্টোরেজ স্ক্যান করে চেক করা হবে এই নম্বর বা এর সাথে মিল আছে কি না
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('last_donate_date_')) {
+                    const savedNum = key.replace('last_donate_date_', '');
+                    if (cleanTarget.includes(savedNum) || savedNum.includes(cleanTarget)) {
+                        const lastDateStr = localStorage.getItem(key);
+                        const lastDate = new Date(lastDateStr);
+                        const now = new Date();
+                        const diffDays = (now - lastDate) / (1000 * 60 * 60 * 24);
+
+                        if (diffDays < 90) {
+                            isRestricted = true;
+                            remainingDays = Math.ceil(90 - diffDays);
+                            break;
+                        }
+                    }
                 }
             }
-            window.location.href = 'tel:' + donorPhone;
+
+            if (isRestricted) {
+                alert(`⚠️ সতর্কবার্তা!\n\nএই রক্তদাতা গত ৩ মাসের মধ্যে রক্তদান করেছেন। নিয়ম অনুযায়ী তার আরও প্রায় ${remainingDays} দিন পর রক্তদান করার কথা। অনুগ্রহ করে অন্য ডোনার সাথে যোগাযোগ করুন।`);
+                return;
+            }
+
+            window.location.href = 'tel:' + targetPhone;
         };
 
         window.toggleStatus = function(id, currentStatus, emObj) {
@@ -453,15 +483,15 @@
                 if (donorName === null) return;
 
                 const donorPhone = prompt("যে রক্তদাতা রক্তদান করেছেন তার মোবাইল নম্বরটি লিখুন:", "01700000000");
-                if (donorPhone === null) return;
+                if (donorPhone === null || donorPhone.trim() === "") return;
 
                 const now = new Date();
                 const donateDateStr = now.toLocaleDateString('bn-BD');
                 const donatedBy = donorName || "অজানা ডোনার";
-                const donatedPhone = donorPhone || "নম্বর নেই";
-                const cleanPhone = donatedPhone.replace(/\s+/g, '');
+                const donatedPhone = donorPhone.trim();
+                const cleanPhone = donatedPhone.replace(/\D/g, '').slice(-11);
 
-                // ৩ মাসের ট্র্যাকিংয়ের জন্য ব্রাউজারে নম্বর দিয়ে তারিখ সেভ করা হলো
+                // ৩ মাসের রেস্ট্রিকশনের জন্য ব্রাউজারে নম্বর দিয়ে বর্তমান সময় সেভ করা হলো
                 localStorage.setItem('last_donate_date_' + cleanPhone, now.toISOString());
 
                 db.ref('emergencies/' + id).update({ 
