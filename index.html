@@ -109,7 +109,7 @@
         <p>জরুরী প্রয়োজনে জীবন বাঁচানোই আমাদের লক্ষ্য</p>
         
         <!-- টেলিগ্রাম জয়েন বাটন -->
-        <a id="telegramBtn" href="https://t.me/bozra_blood_club_bot" target="_blank" class="btn-telegram-header">
+        <a id="telegramBtn" href="javascript:void(0);" class="btn-telegram-header">
             ✈️ টেলিগ্রাম বটে যুক্ত হোন
         </a>
     </header>
@@ -272,16 +272,22 @@
         let allDonors = [];
         let allEmergencies = [];
 
-        // অ্যাপ এবং ব্রাউজার উভয়ের জন্য পপ-আপ প্রম্পট বা সরাসরি এক্সটার্নাল ওপেন হ্যান্ডলার
+        // অ্যাপের ভেতর থেকে পপ-আপের মাধ্যমে ব্রাউজারে নিয়ে যাওয়ার পারফেক্ট হ্যান্ডলার
         document.getElementById('telegramBtn').addEventListener('click', function(e) {
             e.preventDefault();
             const botUrl = "https://t.me/bozra_blood_club_bot";
             
-            // ব্যবহারকারী অ্যাপে থাকলে প্রম্পটের মাধ্যমে ব্রাউজার বা টেলিগ্রাম অ্যাপে রিডাইরেক্ট করবে
-            if (confirm("টেলিগ্রাম বটে যুক্ত হতে কি ব্রাউজার ওপেন করতে চান?")) {
-                window.open(botUrl, '_system');
-            } else {
-                window.open(botUrl, '_blank');
+            // পপ-আপ মেসেজ প্রদর্শন করবে এবং ওকে করলেই ব্রাউজার বা টেলিগ্রাম অ্যাপে ওপেন হবে
+            let openBrowser = confirm("টেলিগ্রাম বটে যুক্ত হতে আপনার ফোনের ব্রাউজার বা অ্যাপ ওপেন করতে হবে। ঠিক আছে?");
+            if (openBrowser) {
+                // অ্যান্ড্রয়েড অ্যাপের জন্য সরাসরি লিংক ট্রিগার
+                const link = document.createElement('a');
+                link.href = botUrl;
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
             }
         });
 
