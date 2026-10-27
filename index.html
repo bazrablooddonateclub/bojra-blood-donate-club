@@ -67,10 +67,11 @@
         .blood-badge { background: #d9534f; color: white; padding: 4px 10px; border-radius: 20px; font-weight: bold; font-size: 0.9em; position: absolute; top: 15px; right: 15px; }
         .btn-call { display: block; text-align: center; background: #28a745; color: white; text-decoration: none; padding: 8px; border-radius: 5px; margin-top: 10px; font-weight: bold; }
         
-        /* স্ট্যাটাস বাটন স্টাইল */
+        /* স্ট্যাটাস বাটন ও ইন্সট্রাকশন স্টাইল */
         .status-badge { display: inline-block; padding: 8px 10px; border-radius: 4px; font-weight: bold; font-size: 0.9em; margin-top: 8px; text-align: center; width: 100%; cursor: pointer; border: none; }
         .status-pending { background: #ffc107; color: #333; }
         .status-complete { background: #28a745; color: white; }
+        .instruction-text { font-size: 0.8em; color: #d9534f; text-align: center; margin-top: 4px; font-weight: bold; }
 
         footer { text-align: center; padding: 20px; background: #333; color: white; margin-top: 40px; }
         .loading { text-align: center; color: #666; font-style: italic; grid-column: 1/-1; }
@@ -149,7 +150,7 @@
         <div class="card completed-card-box">
             <h2 style="color: #28a745; border-bottom: 2px solid #28a745;">✅ সম্পন্ন হওয়া রক্তের অনুরোধসমূহ</h2>
             <div class="donor-list" id="completedEmergencyList">
-                <div class="loading">কোনো সম্পূর্ণ ডেটা নেই...</div>
+                <div class="loading">কোনো সম্পন্ন হওয়া ডেটা নেই...</div>
             </div>
         </div>
 
@@ -235,11 +236,13 @@
         let allEmergencies = [];
 
         // Telegram Notification Function
-        function sendTelegramNotification(bloodGroup, location, amount, problem, refPhone) {
+        function sendTelegramNotification(bloodGroup, location, amount, problem, refPhone, isReminder = false) {
             const botToken = "8975147675:AAGrWXFE4-y_L7Sw55P58PL17ukfUlxHAB0";
             const chatId = "8352480462";
 
-            const message = `🚨 *জরুরী রক্তের অনুরোধ!* 🚨\n\n` +
+            const title = isReminder ? "⏰ *জরুরী রক্তদানের রিমাইন্ডার (৬ ঘণ্টা পর)* ⏰\n\n" : "🚨 *জরুরী রক্তের অনুরোধ!* 🚨\n\n";
+
+            const message = title +
                             `🩸 *রক্তের গ্রুপ:* ${bloodGroup}\n` +
                             `🏥 *স্থান:* ${location}\n` +
                             `📦 *পরিমাণ:* ${amount}\n` +
@@ -280,6 +283,27 @@
             });
         }
 
+        // প্রতি ৬ ঘণ্টা অন্তর রিমাইন্ডার চেক করার লজিক
+        function checkPendingReminders(emergencies) {
+            const SIX_HOURS = 6 * 60 * 60 * 1000; // ৬ ঘণ্টার মিলিসেকেন্ড
+            const currentTime = Date.now();
+
+            emergencies.forEach(em => {
+                if ((em.status || "Pending") === "Pending") {
+                    const lastReminder = em.lastReminderTime || em.timestamp;
+                    
+                    // যদি শেষ নোটিফিকেশনের পর ৬ ঘণ্টা বা তার বেশি সময় পার হয়ে থাকে
+                    if ((currentTime - lastReminder) >= SIX_HOURS) {
+                        // টেলিগ্রামে রিমাইন্ডার পাঠানো
+                        sendTelegramNotification(em.bloodGroup, em.location, em.amount, em.problem, em.refPhone, true);
+                        
+                        // ফায়ারবেসে শেষ রিমাইন্ডারের সময় আপডেট করা যাতে লুপ না হয়
+                        db.ref('emergencies/' + em.id).update({ lastReminderTime: currentTime });
+                    }
+                }
+            });
+        }
+
         // জরুরী অনুরোধ ডেটা লোড করা
         function loadEmergencies() {
             db.ref('emergencies').on('value', (snapshot) => {
@@ -293,6 +317,7 @@
                     });
                 }
                 displayEmergencies();
+                checkPendingReminders(allEmergencies);
             });
         }
 
@@ -338,6 +363,7 @@
             const amt = document.getElementById('emAmount').value;
             const prob = document.getElementById('emProblem').value;
             const rPhone = document.getElementById('emRefPhone').value;
+            const currentTime = Date.now();
 
             const newEmergency = {
                 problem: prob,
@@ -348,14 +374,15 @@
                 location: loc,
                 refName: document.getElementById('emRefName').value,
                 refPhone: rPhone,
-                status: "Pending", // ডিফল্ট স্ট্যাটাস Pending থাকবে
-                timestamp: Date.now()
+                status: "Pending",
+                timestamp: currentTime,
+                lastReminderTime: currentTime
             };
 
             db.ref('emergencies').push(newEmergency)
                 .then(() => {
                     // Send Telegram Notification
-                    sendTelegramNotification(bg, loc, amt, prob, rPhone);
+                    sendTelegramNotification(bg, loc, amt, prob, rPhone, false);
                     
                     alert("জরুরী রক্তের অনুরোধ এবং টেলিগ্রাম নোটিফিকেশন সফলভাবে পাঠানো হয়েছে!");
                     document.getElementById('emergencyForm').reset();
@@ -372,7 +399,11 @@
         // স্ট্যাটাস পরিবর্তন করার ফাংশন (Pending <-> Complete)
         window.toggleStatus = function(id, currentStatus) {
             const newStatus = (currentStatus === "Complete") ? "Pending" : "Complete";
-            db.ref('emergencies/' + id).update({ status: newStatus })
+            const updateData = { status: newStatus };
+            if (newStatus === "Pending") {
+                updateData.lastReminderTime = Date.now(); // আবার পেন্ডিং করলে রিমাইন্ডার কাউন্ট শুরু হবে
+            }
+            db.ref('emergencies/' + id).update(updateData)
                 .catch(err => alert("স্ট্যাটাস আপডেট করতে সমস্যা হয়েছে: " + err.message));
         };
 
@@ -446,6 +477,9 @@
             const isComplete = status === "Complete";
             const statusClass = isComplete ? "status-complete" : "status-pending";
             const statusText = isComplete ? "✅ Blood Donate Complete" : "⏳ Blood Donate Pending";
+            
+            // আপনার চাওয়া ইন্সট্রাকশন টেক্সট যুক্ত করা হলো[cite: 5]
+            const instructionHTML = isComplete ? '' : '<div class="instruction-text">[রক্ত প্রদান সম্পূর্ণ হলে এই বাটন এ ক্লিক করুণ]</div>';
 
             const card = document.createElement('div');
             card.className = isComplete ? 'donor-card completed-item' : 'donor-card emergency-item';
@@ -459,6 +493,7 @@
                 <p style="margin: 4px 0;">👤 <strong>রেফারেন্স:</strong> ${em.refName || 'নেই'}</p>
                 <a href="tel:${em.refPhone || '#'}" class="btn-call" style="background: ${isComplete ? '#28a745' : '#c9302c'};">📞 কল করুন (${em.refPhone || 'নম্বর নেই'})</a>
                 <button class="status-badge ${statusClass}" onclick="toggleStatus('${em.id}', '${status}')">${statusText}</button>
+                ${instructionHTML}
             `;
             return card;
         }
