@@ -108,7 +108,7 @@
         <h1>বজরা ব্লাড ডোনেট ক্লাব</h1>
         <p>জরুরী প্রয়োজনে জীবন বাঁচানোই আমাদের লক্ষ্য</p>
         
-        <!-- টেলিগ্রাম জয়েন বাটন -->
+        <!-- টেলিগ্রাম জয়েন বাটন -->
         <a id="telegramBtn" href="javascript:void(0);" class="btn-telegram-header">
             ✈️ টেলিগ্রাম বটে যুক্ত হোন
         </a>
@@ -272,22 +272,15 @@
         let allDonors = [];
         let allEmergencies = [];
 
-        // অ্যাপের ভেতর থেকে পপ-আপের মাধ্যমে ব্রাউজারে নিয়ে যাওয়ার পারফেক্ট হ্যান্ডলার
+        // অ্যাপের ভেতর WebView এর ক্র্যাশ এড়াতে পপ-আপের মাধ্যমে ব্রাউজারে লিংক ওপেন করার সুনির্দিষ্ট হ্যান্ডলার
         document.getElementById('telegramBtn').addEventListener('click', function(e) {
             e.preventDefault();
             const botUrl = "https://t.me/bozra_blood_club_bot";
             
-            // পপ-আপ মেসেজ প্রদর্শন করবে এবং ওকে করলেই ব্রাউজার বা টেলিগ্রাম অ্যাপে ওপেন হবে
-            let openBrowser = confirm("টেলিগ্রাম বটে যুক্ত হতে আপনার ফোনের ব্রাউজার বা অ্যাপ ওপেন করতে হবে। ঠিক আছে?");
-            if (openBrowser) {
-                // অ্যান্ড্রয়েড অ্যাপের জন্য সরাসরি লিংক ট্রিগার
-                const link = document.createElement('a');
-                link.href = botUrl;
-                link.target = '_blank';
-                link.rel = 'noopener noreferrer';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
+            // প্রম্পটের মাধ্যমে লিংক দেখাবে এবং ব্রাউজার বা এক্সটার্নাল অ্যাপে রিডাইরেক্ট করবে
+            let userAction = prompt("টেলিগ্রাম বটে যুক্ত হতে নিচের লিংকটি কপি করে যেকোনো ব্রাউজারে ওপেন করুন:", botUrl);
+            if (userAction !== null) {
+                window.open(botUrl, '_system');
             }
         });
 
