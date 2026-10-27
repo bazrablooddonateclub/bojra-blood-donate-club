@@ -64,6 +64,12 @@
         .emergency-item { background: #ffffff; border-left: 5px solid #c9302c; border-top: 2px solid #c9302c; }
         .blood-badge { background: #d9534f; color: white; padding: 4px 10px; border-radius: 20px; font-weight: bold; font-size: 0.9em; position: absolute; top: 15px; right: 15px; }
         .btn-call { display: block; text-align: center; background: #28a745; color: white; text-decoration: none; padding: 8px; border-radius: 5px; margin-top: 10px; font-weight: bold; }
+        
+        /* স্ট্যাটাস বাটন স্টাইল */
+        .status-badge { display: inline-block; padding: 5px 10px; border-radius: 4px; font-weight: bold; font-size: 0.85em; margin-top: 8px; text-align: center; width: 100%; cursor: pointer; border: none; }
+        .status-pending { background: #ffc107; color: #333; }
+        .status-complete { background: #28a745; color: white; }
+
         footer { text-align: center; padding: 20px; background: #333; color: white; margin-top: 40px; }
         .loading { text-align: center; color: #666; font-style: italic; grid-column: 1/-1; }
     </style>
@@ -332,6 +338,7 @@
                 location: loc,
                 refName: document.getElementById('emRefName').value,
                 refPhone: rPhone,
+                status: "Pending", // ডিফল্ট স্ট্যাটাস Pending থাকবে
                 timestamp: Date.now()
             };
 
@@ -351,6 +358,13 @@
                     emSubmitBtn.innerText = "জরুরী অনুরোধ প্রকাশ করুন";
                 });
         });
+
+        // স্ট্যাটাস পরিবর্তন করার ফাংশন (Pending <-> Complete)
+        window.toggleStatus = function(id, currentStatus) {
+            const newStatus = (currentStatus === "Complete") ? "Pending" : "Complete";
+            db.ref('emergencies/' + id).update({ status: newStatus })
+                .catch(err => alert("স্ট্যাটাস আপডেট করতে সমস্যা হয়েছে: " + err.message));
+        };
 
         // ডোনার প্রদর্শন
         function displayDonors() {
@@ -385,7 +399,7 @@
             });
         }
 
-        // জরুরী অনুরোধসমূহ প্রদর্শন
+        // জরুরী অনুরোধসমূহ প্রদর্শন (Pending এবং Complete অপশন সহ)
         function displayEmergencies() {
             const emergencyList = document.getElementById('emergencyList');
             emergencyList.innerHTML = '';
@@ -396,6 +410,12 @@
             }
 
             allEmergencies.reverse().forEach(em => {
+                const status = em.status || "Pending";
+                const isComplete = status === "Complete";
+                
+                const statusClass = isComplete ? "status-complete" : "status-pending";
+                const statusText = isComplete ? "✅ Blood Donate Complete" : "⏳ Blood Donate Pending";
+
                 const card = document.createElement('div');
                 card.className = 'donor-card emergency-item';
                 card.innerHTML = `
@@ -407,6 +427,7 @@
                     <p style="margin: 4px 0;">🏥 <strong>স্থান:</strong> ${em.location || 'অজানা'}</p>
                     <p style="margin: 4px 0;">👤 <strong>রেফারেন্স:</strong> ${em.refName || 'নেই'}</p>
                     <a href="tel:${em.refPhone || '#'}" class="btn-call" style="background: #c9302c;">📞 কল করুন (${em.refPhone || 'নম্বর নেই'})</a>
+                    <button class="status-badge ${statusClass}" onclick="toggleStatus('${em.id}', '${status}')">${statusText}</button>
                 `;
                 emergencyList.appendChild(card);
             });
