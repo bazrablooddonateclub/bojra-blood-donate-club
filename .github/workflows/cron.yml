@@ -1,0 +1,21 @@
+name: Background Blood Expiration Check
+
+on:
+  schedule:
+    - cron: '*/5 * * * *' # প্রতি ৫ মিনিট পর পর ব্যাকগ্রাউন্ডে স্বয়ংক্রিয়ভাবে চলবে
+  workflow_dispatch: # চাইলে গিটহাব প্যানেল থেকে ম্যানুয়ালি রান করানোর অপশন
+
+jobs:
+  check-expired:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Run Expired Check Script
+        run: node check-expired.js
