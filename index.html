@@ -51,6 +51,7 @@
         .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
         .emergency-card-box { border: 2px solid #d9534f; background: #fff5f5; }
         .completed-card-box { border: 2px solid #28a745; background: #f0fff4; }
+        .stats-card-box { border: 2px solid #17a2b8; background: #e8f4f8; }
         h2 { border-bottom: 2px solid #d9534f; padding-bottom: 8px; color: #d9534f; margin-top: 0; }
         .form-group { margin-bottom: 15px; }
         label { display: block; margin-bottom: 5px; font-weight: bold; }
@@ -64,6 +65,7 @@
         .donor-card { background: #fafafa; border-left: 5px solid #d9534f; padding: 15px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: relative; }
         .emergency-item { background: #ffffff; border-left: 5px solid #c9302c; border-top: 2px solid #c9302c; }
         .completed-item { background: #ffffff; border-left: 5px solid #28a745; border-top: 2px solid #28a745; }
+        .stats-item { background: #ffffff; border-left: 5px solid #17a2b8; border-top: 2px solid #17a2b8; padding: 12px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .blood-badge { background: #d9534f; color: white; padding: 4px 10px; border-radius: 20px; font-weight: bold; font-size: 0.9em; position: absolute; top: 15px; right: 15px; }
         .btn-call { display: block; text-align: center; background: #28a745; color: white; text-decoration: none; padding: 8px; border-radius: 5px; margin-top: 10px; font-weight: bold; }
         
@@ -151,6 +153,14 @@
             <h2 style="color: #28a745; border-bottom: 2px solid #28a745;">✅ সম্পন্ন হওয়া রক্তের অনুরোধসমূহ</h2>
             <div class="donor-list" id="completedEmergencyList">
                 <div class="loading">কোনো সম্পন্ন হওয়া অনুরোধ নেই...</div>
+            </div>
+        </div>
+
+        <!-- রক্তদানের পরিসংখ্যান (কে কত ব্যাগ দিলেন) -->
+        <div class="card stats-card-box">
+            <h2 style="color: #17a2b8; border-bottom: 2px solid #17a2b8;">🏆 রক্তদানের পরিসংখ্যান (কে কত ব্যাগ দিলেন)</h2>
+            <div class="donor-list" id="donationStatsList">
+                <div class="loading">পরিসংখ্যান লোড হচ্ছে...</div>
             </div>
         </div>
 
@@ -290,18 +300,16 @@
                 allEmergencies = [];
                 if (data) {
                     const currentTime = Date.now();
-                    const sixHours = 6 * 60 * 60 * 1000; // ৬ ঘণ্টার মিলিসেকেন্ড
+                    const sixHours = 6 * 60 * 60 * 1000;
 
                     Object.keys(data).forEach(key => {
                         if (data[key] && data[key].problem) {
                             const emergency = { id: key, ...data[key] };
                             allEmergencies.push(emergency);
 
-                            // যদি স্ট্যাটাস Pending থাকে এবং সর্বশেষ নোটিফিকেশনের পর ৬ ঘণ্টা পার হয়ে থাকে
                             if ((emergency.status || "Pending") === "Pending") {
                                 const lastNotified = emergency.lastNotified || emergency.timestamp || currentTime;
                                 if (currentTime - lastNotified >= sixHours) {
-                                    // টেলিগ্রামে রিমাইন্ডার পাঠানো
                                     sendTelegramNotification(
                                         emergency.bloodGroup, 
                                         emergency.location, 
@@ -310,7 +318,6 @@
                                         emergency.refPhone, 
                                         true
                                     );
-                                    // ফায়ারবেসে শেষ নোটিফিকেশনের সময় আপডেট করা
                                     db.ref('emergencies/' + key).update({ lastNotified: currentTime });
                                 }
                             }
@@ -318,6 +325,7 @@
                     });
                 }
                 displayEmergencies();
+                displayDonationStats();
             });
         }
 
@@ -381,9 +389,7 @@
 
             db.ref('emergencies').push(newEmergency)
                 .then(() => {
-                    // Send Telegram Notification
                     sendTelegramNotification(bg, loc, amt, prob, rPhone, false);
-                    
                     alert("জরুরী রক্তের অনুরোধ এবং টেলিগ্রাম নোটিফিকেশন সফলভাবে পাঠানো হয়েছে!");
                     document.getElementById('emergencyForm').reset();
                 })
@@ -398,12 +404,23 @@
 
         // স্ট্যাটাস পরিবর্তন করার ফাংশন (Pending <-> Complete)
         window.toggleStatus = function(id, currentStatus) {
-            const newStatus = (currentStatus === "Complete") ? "Pending" : "Complete";
-            db.ref('emergencies/' + id).update({ 
-                status: newStatus,
-                lastNotified: Date.now() 
-            })
-            .catch(err => alert("স্ট্যাটাস আপডেট করতে সমস্যা হয়েছে: " + err.message));
+            if (currentStatus === "Pending") {
+                const donorName = prompt("কে রক্তদান করেছেন সেই রক্তদাতার নাম লিখুন:", "সৈয়দ ইমরান হোসেন");
+                if (donorName === null) return; // Cancelled
+                db.ref('emergencies/' + id).update({ 
+                    status: "Complete",
+                    donatedBy: donorName || "অজানা ডোনার",
+                    lastNotified: Date.now() 
+                })
+                .catch(err => alert("স্ট্যাটাস আপডেট করতে সমস্যা হয়েছে: " + err.message));
+            } else {
+                db.ref('emergencies/' + id).update({ 
+                    status: "Pending",
+                    donatedBy: null,
+                    lastNotified: Date.now() 
+                })
+                .catch(err => alert("স্ট্যাটাস আপডেট করতে সমস্যা হয়েছে: " + err.message));
+            }
         };
 
         // ডোনার প্রদর্শন
@@ -450,7 +467,6 @@
             const pendingList = allEmergencies.filter(em => (em.status || "Pending") === "Pending");
             const completedList = allEmergencies.filter(em => em.status === "Complete");
 
-            // Pending Box Render
             if (pendingList.length === 0) {
                 emergencyList.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">বর্তমানে কোনো জরুরী রক্তের অনুরোধ নেই।</p>';
             } else {
@@ -460,7 +476,6 @@
                 });
             }
 
-            // Complete Box Render
             if (completedList.length === 0) {
                 completedEmergencyList.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">কোনো সম্পন্ন হওয়া অনুরোধ নেই।</p>';
             } else {
@@ -471,14 +486,46 @@
             }
         }
 
+        // রক্তদানের পরিসংখ্যান হিসাব ও প্রদর্শন
+        function displayDonationStats() {
+            const statsList = document.getElementById('donationStatsList');
+            statsList.innerHTML = '';
+
+            const completedList = allEmergencies.filter(em => em.status === "Complete");
+
+            if (completedList.length === 0) {
+                statsList.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">এখনো কোনো রক্তদান সম্পন্ন হয়নি।</p>';
+                return;
+            }
+
+            // ডোনার অনুযায়ী ব্যাগ হিসাব করা
+            const stats = {};
+            completedList.forEach(em => {
+                const donor = em.donatedBy || "অন্যান্য / অজ্ঞাত";
+                // পরিমাণ থেকে সংখ্যা বের করা (যেমন "২ ব্যাগ" থেকে ২ বা ডিফল্ট ১)
+                let bags = parseInt(em.amount) || 1;
+                stats[donor] = (stats[donor] || 0) + bags;
+            });
+
+            Object.keys(stats).forEach(donorName => {
+                const totalBags = stats[donorName];
+                const card = document.createElement('div');
+                card.className = 'stats-item';
+                card.innerHTML = `
+                    <h3 style="margin:0 0 5px 0; color: #17a2b8;">👤 ${donorName}</h3>
+                    <p style="margin: 0; font-size: 1.1em; font-weight: bold;">🩸 মোট রক্তদান: ${totalBags} ব্যাগ</p>
+                `;
+                statsList.appendChild(card);
+            });
+        }
+
         // কার্ড তৈরির হেল্পার ফাংশন
         function createEmergencyCard(em, status) {
             const isComplete = status === "Complete";
             const statusClass = isComplete ? "status-complete" : "status-pending";
             const statusText = isComplete ? "✅ Blood Donate Complete" : "⏳ Blood Donate Pending";
             
-            // ইন্সট্রাকশন টেক্সট কেবল Pending থাকলেই দেখাবে
-            const instructionHTML = isComplete ? '' : '<div class="instruction-text">[ রক্ত প্রদান সম্পূর্ণ হলে এই বাটন এ ক্লিক করবেন ]</div>';
+            const instructionHTML = isComplete ? `<p style="margin: 5px 0; font-size: 0.9em; color: #28a745;"><strong>দাতা:</strong> ${em.donatedBy || 'অজানা'}</p>` : '<div class="instruction-text">[ রক্ত প্রদান সম্পূর্ণ হলে এই বাটন এ ক্লিক করবেন ]</div>';
 
             const card = document.createElement('div');
             card.className = isComplete ? 'donor-card completed-item' : 'donor-card emergency-item';
