@@ -169,7 +169,7 @@
 
         <!-- রক্তদানের পরিসংখ্যান -->
         <div class="card stats-card-box">
-            <h2 style="color: #17a2b8; border-bottom: 2px solid #17a2b8;">🏆 রক্তদানের পরিসংখ্যান (কে কত ব্যাগ দিলেন)</h2>
+            <h2 style="color: #17a2b8; border-bottom: 2px solid #17a2b8;">🏆 রক্তদানের পরিসংখ্যান ( কে কত ব্যাগ দিলেন)</h2>
             <div class="donor-list" id="donationStatsList">
                 <div class="loading">পরিসংখ্যান লোড হচ্ছে...</div>
             </div>
@@ -329,15 +329,18 @@
                                 }
                             }
 
-                            // সময় পার হয়ে গেলে এবং ইতিমধ্যে Expired নোটিফিকেশন না পাঠানো হয়ে থাকলে স্বয়ংক্রিয়ভাবে এক্সপায়ার্ড স্ট্যাটাস ও টেলিগ্রাম নোটিফিকেশন পাঠাবে
+                            // সময় পার হয়ে গেলে সরাসরি ফায়ারবেসে স্ট্যাটাস Expired করে দেব, যাতে আর অনুরোধ বক্সে না থাকে
                             if (emergency.status === "Pending" && emergency.date && emergency.time) {
                                 const targetDateTime = new Date(`${emergency.date}T${emergency.time}`);
-                                if (currentTime > targetDateTime.getTime() && !emergency.expiredNotified) {
-                                    db.ref('emergencies/' + key).update({ status: "Expired", expiredNotified: true });
+                                if (currentTime > targetDateTime.getTime()) {
+                                    db.ref('emergencies/' + key).update({ status: "Expired" });
                                     
-                                    const expiredInfo = `❌ *দুঃখজনক! রক্তের অনুরোধটি মেয়াদোত্তীর্ণ বা ব্যর্থ হয়েছে!*\n\n` +
-                                                        `⚠️ নির্ধারিত সময়ের মধ্যে রক্তদান সম্পন্ন করা সম্ভব হয়নি।`;
-                                    sendTelegramNotification("⌛ *বজরা ব্লাড ডোনেট ক্লাব - অনুরোধ মেয়াদোত্তীর্ণ*", emergency.bloodGroup, emergency.location, emergency.amount, emergency.problem, emergency.refPhone, expiredInfo);
+                                    if (!emergency.expiredNotified) {
+                                        db.ref('emergencies/' + key).update({ expiredNotified: true });
+                                        const expiredInfo = `❌ *দুঃখজনক! রক্তের অনুরোধটি মেয়াদোত্তীর্ণ বা ব্যর্থ হয়েছে!*\n\n` +
+                                                            `⚠️ নির্ধারিত সময়ের মধ্যে রক্তদান সম্পন্ন করা সম্ভব হয়নি।`;
+                                        sendTelegramNotification("⌛ *বজরা ব্লাড ডোনেট ক্লাব - অনুরোধ মেয়াদোত্তীর্ণ*", emergency.bloodGroup, emergency.location, emergency.amount, emergency.problem, emergency.refPhone, expiredInfo);
+                                    }
                                 }
                             }
 
@@ -550,11 +553,15 @@
             const expiredList = [];
 
             allEmergencies.forEach(em => {
+                // স্ট্যাটাস যদি Complete হয় তবে শুধুমাত্র সম্পন্ন বক্সে যাবে
                 if (em.status === "Complete") {
                     completedList.push(em);
-                } else if (em.status === "Expired") {
+                } 
+                // স্ট্যাটাস যদি Expired হয় অথবা সময় পার হয়ে গিয়ে থাকে তবে মেয়াদোত্তীর্ণ বক্সে যাবে
+                else if (em.status === "Expired") {
                     expiredList.push(em);
-                } else {
+                } 
+                else {
                     if (em.date && em.time) {
                         const targetDateTime = new Date(`${em.date}T${em.time}`);
                         if (now > targetDateTime) {
