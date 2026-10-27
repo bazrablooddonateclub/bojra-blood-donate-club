@@ -1,0 +1,141 @@
+const https = require('https');
+
+const FIREBASE_URL = "https://bazra-blood-donate-club-web-default-rtdb.asia-southeast1.firebasedatabase.app/emergencies.json";
+const BOT_TOKEN = "8975147675:AAGrWXFE4-y_L7Sw55P58PL17ukfUlxHAB0";
+const TARGETS = ["8352480462", "@bazra_blood_club"];
+
+function fetchJSON(url) {
+    return new Promise((resolve, reject) => {
+        https.get(url, (res) => {
+            let data = '';
+            res.on('data', chunk => data += chunk);
+            res.on('end', () => {
+                try {
+                    resolve(JSON.parse(data));
+                } catch (e) {
+                    reject(e);
+                }
+            });
+        }).on('error', reject);
+    });
+}
+
+function updateFirebase(key, updateData) {
+    return new Promise((resolve, reject) => {
+        const url = `https://bazra-blood-donate-club-web-default-rtdb.asia-southeast1.firebasedatabase.app/emergencies/${key}.json`;
+        const postData = JSON.stringify(updateData);
+        
+        const req = https.request(url, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(postData)
+            }
+        }, (res) => {
+            res.on('data', () => {});
+            res.on('end', () => resolve());
+        });
+
+        req.on('error', reject);
+        req.write(postData);
+        req.end();
+    });
+}
+
+function sendTelegramNotification(title, bloodGroup, location, amount, problem, refPhone, date, time, extraDetails) {
+    let message = `${title}\n\n` +
+                  `🩸 রক্তের গ্রুপ: ${bloodGroup}\n` +
+                  `🏥 স্থান: ${location}\n` +
+                  `📦 পরিমাণ: ${amount}\n` +
+                  `📅 রক্তদানের তারিখ ও সময়: ${date} (${time})\n` +
+                  `📋 সমস্যা: ${problem}\n` +
+                  `📞 রক্ত গ্রহীতার মোবাইল: ${refPhone}\n\n` +
+                  `${extraDetails}`;
+
+    const promises = TARGETS.map(targetId => {
+        return new Promise((resolve) => {
+            const postData = JSON.stringify({ chat_id: targetId, text: message });
+            const req = https.request(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Length': Buffer.byteLength(postData)
+                }
+            }, (res) => {
+                res.on('data', () => {});
+                res.on('end', () => resolve());
+            });
+            req.on('error', () => resolve());
+            req.write(postData);
+            req.end();
+        });
+    });
+
+    return Promise.all(promises);
+}
+
+function parseTargetTime(dateStr, timeStr) {
+    try {
+        if (!dateStr || !timeStr) return 0;
+        const parts = dateStr.split('-');
+        const timeParts = timeStr.split(':');
+        if (parts.length === 3 && timeParts.length >= 2) {
+            const year = parseInt(parts[0], 10);
+            const month = parseInt(parts[1], 10) - 1;
+            const day = parseInt(parts[2], 10);
+            const hour = parseInt(timeParts[0], 10);
+            const minute = parseInt(timeParts[1], 10);
+            return new Date(year, month, day, hour, minute).getTime();
+        }
+    } catch (e) {
+        console.error("Date Parsing Error", e);
+    }
+    return 0;
+}
+
+async function runCheck() {
+    try {
+        console.log("Checking expired blood requests...");
+        const data = await fetchJSON(FIREBASE_URL);
+        const currentTime = Date.now();
+
+        if (data) {
+            const keys = Object.keys(data);
+            for (let key of keys) {
+                const emergency = data[key];
+                if (emergency && emergency.status !== "Complete" && emergency.status !== "Expired") {
+                    const targetDateTime = parseTargetTime(emergency.date, emergency.time);
+
+                    if (targetDateTime > 0 && currentTime > targetDateTime) {
+                        console.log(`Found expired item: ${key}`);
+                        
+                        await updateFirebase(key, { 
+                            status: "Expired",
+                            expiredNotified: true 
+                        });
+
+                        const expiredInfo = `❌ দুঃখজনক! রক্তের অনুরোধটি মেয়াদোত্তীর্ণ বা ব্যর্থ হয়েছে!\n\n⚠️ নির্ধারিত সময়ের মধ্যে রক্তদান সম্পন্ন করা সম্ভব হয়নি।`;
+                        
+                        await sendTelegramNotification(
+                            "⌛ বজরা ব্লাড ডোনেট ক্লাব - অনুরোধ মেয়াদোত্তীর্ণ",
+                            emergency.bloodGroup || 'N/A', 
+                            emergency.location || 'অজানা', 
+                            emergency.amount || 'অজানা', 
+                            emergency.problem || 'বলা হয়নি', 
+                            emergency.refPhone || 'নেই', 
+                            emergency.date || '', 
+                            emergency.time || '', 
+                            expiredInfo
+                        );
+                        console.log("Telegram notification sent successfully.");
+                    }
+                }
+            }
+        }
+        console.log("Check complete.");
+    } catch (err) {
+        console.error("Error during execution:", err);
+    }
+}
+
+runCheck();
