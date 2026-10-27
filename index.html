@@ -23,7 +23,6 @@
         header h1 { margin: 0; font-size: 2.3em; position: relative; z-index: 2; }
         header p { margin-top: 8px; font-size: 1.1em; opacity: 0.95; position: relative; z-index: 2; }
 
-        /* টেলিগ্রাম জয়েন বাটনের স্টাইল */
         .btn-telegram-header {
             display: inline-flex;
             align-items: center;
@@ -107,7 +106,6 @@
         <div class="blood-icon-right">🩸</div>
         <h1>বজরা ব্লাড ডোনেট ক্লাব</h1>
         <p>জরুরী প্রয়োজনে জীবন বাঁচানোই আমাদের লক্ষ্য</p>
-        <!-- টেলিগ্রাম বট বা চ্যানেলে জয়েন করার বাটন -->
         <a href="https://t.me/BozraBloodClubBot" target="_blank" class="btn-telegram-header">
             ✈️ টেলিগ্রাম বটে যুক্ত হোন
         </a>
@@ -283,11 +281,8 @@
             return digits;
         }
 
-        // সরাসরি চ্যানেলে ও নির্দিষ্ট চ্যাট আইডিতে নোটিফিকেশন পাঠানোর ফাংশন
         function sendTelegramNotification(title, bloodGroup, location, amount, problem, refPhone, extraDetails = "") {
             const botToken = "8975147675:AAGrWXFE4-y_L7Sw55P58PL17ukfUlxHAB0";
-            
-            // আপনার টেলিগ্রাম চ্যাট আইডি এবং চ্যানেলের ইউজারনেম:
             const targets = ["8352480462", "@bazra_blood_club"]; 
 
             let message = title + "\n\n" +
@@ -614,7 +609,7 @@
 
         function displayDonationStats() {
             const statsList = document.getElementById('donationStatsList');
-^            statsList.innerHTML = '';
+            statsList.innerHTML = '';
             const completedList = allEmergencies.filter(em => em.status === "Complete");
 
             if (completedList.length === 0) {
