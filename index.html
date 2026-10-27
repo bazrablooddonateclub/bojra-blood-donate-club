@@ -108,10 +108,11 @@
         <h1>বজরা ব্লাড ডোনেট ক্লাব</h1>
         <p>জরুরী প্রয়োজনে জীবন বাঁচানোই আমাদের লক্ষ্য</p>
         
-        <!-- টেলিগ্রাম জয়েন বাটন -->
-        <a id="telegramBtn" href="javascript:void(0);" class="btn-telegram-header">
-            ✈️ টেলিগ্রাম বটে যুক্ত হোন
-        </a>
+        <!-- টেলিগ্রাম বট ইউজারনেম বক্স -->
+        <div style="background: rgba(255, 255, 255, 0.2); padding: 10px 15px; border-radius: 8px; display: inline-block; margin-top: 15px; position: relative; z-index: 2;">
+            <p style="margin: 0; font-size: 0.95em; font-weight: bold;">✈️ টেলিগ্রাম বট ইউজারনেম:</p>
+            <span style="font-size: 1.1em; font-weight: bold; background: #fff; color: #0088cc; padding: 4px 10px; border-radius: 4px; display: inline-block; margin-top: 5px; user-select: all;">@bozra_blood_club_bot</span>
+        </div>
     </header>
 
     <div class="container">
@@ -191,7 +192,7 @@
             </div>
         </div>
 
-        <!-- নতুন ডোনার যুক্ত ও এডিট করার ফর্ম -->
+        <!-- নতুন ডোনার যুক্ত করার ফর্ম -->
         <div class="card" id="donorFormCard">
             <h2 id="donorFormTitle">নতুন রক্তদাতা যুক্ত করুন</h2>
             <form id="donorForm">
@@ -271,18 +272,6 @@
 
         let allDonors = [];
         let allEmergencies = [];
-
-        // অ্যাপের ভেতর WebView এর ক্র্যাশ এড়াতে পপ-আপের মাধ্যমে ব্রাউজারে লিংক ওপেন করার সুনির্দিষ্ট হ্যান্ডলার
-        document.getElementById('telegramBtn').addEventListener('click', function(e) {
-            e.preventDefault();
-            const botUrl = "https://t.me/bozra_blood_club_bot";
-            
-            // প্রম্পটের মাধ্যমে লিংক দেখাবে এবং ব্রাউজার বা এক্সটার্নাল অ্যাপে রিডাইরেক্ট করবে
-            let userAction = prompt("টেলিগ্রাম বটে যুক্ত হতে নিচের লিংকটি কপি করে যেকোনো ব্রাউজারে ওপেন করুন:", botUrl);
-            if (userAction !== null) {
-                window.open(botUrl, '_system');
-            }
-        });
 
         function normalizePhone(phone) {
             if (!phone) return '';
@@ -457,21 +446,6 @@
             document.getElementById('emSubmitBtn').disabled = false;
         }
 
-        window.editDonor = function(id) {
-            const donor = allDonors.find(d => d.id === id);
-            if (!donor) return;
-            document.getElementById('donorId').value = donor.id;
-            document.getElementById('name').value = donor.name || '';
-            document.getElementById('age').value = donor.age || '';
-            document.getElementById('bloodGroup').value = donor.bloodGroup || '';
-            document.getElementById('phone').value = donor.phone || '';
-            document.getElementById('location').value = donor.location || '';
-            
-            document.getElementById('donorFormTitle').innerText = "✏️ রক্তদাতার তথ্য এডিট করুন";
-            document.getElementById('submitBtn').innerText = "আপডেট করুন";
-            document.getElementById('donorFormCard').scrollIntoView({ behavior: 'smooth' });
-        };
-
         window.editEmergency = function(id) {
             const em = allEmergencies.find(e => e.id === id);
             if (!em) return;
@@ -594,7 +568,6 @@
                     <p style="margin: 5px 0;">🎂 <strong>বয়স:</strong> ${donor.age ? donor.age + ' বছর' : 'অজানা'}</p>
                     <p style="margin: 5px 0;">📍 <strong>ঠিকানা:</strong> ${donor.location || 'অজানা'}</p>
                     <button onclick="checkDonorAndCall('${donor.phone || ''}')" class="btn-call">📞 কল করুন (${donor.phone || 'নম্বর নেই'})</button>
-                    <button class="btn-edit" onclick="editDonor('${donor.id}')">✏️ তথ্য এডিট করুন</button>
                 `;
                 donorList.appendChild(card);
             });
