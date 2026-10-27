@@ -329,6 +329,18 @@
                                 }
                             }
 
+                            // সময় পার হয়ে গেলে এবং ইতিমধ্যে Expired নোটিফিকেশন না পাঠানো হয়ে থাকলে স্বয়ংক্রিয়ভাবে এক্সপায়ার্ড স্ট্যাটাস ও টেলিগ্রাম নোটিফিকেশন পাঠাবে
+                            if (emergency.status === "Pending" && emergency.date && emergency.time) {
+                                const targetDateTime = new Date(`${emergency.date}T${emergency.time}`);
+                                if (currentTime > targetDateTime.getTime() && !emergency.expiredNotified) {
+                                    db.ref('emergencies/' + key).update({ status: "Expired", expiredNotified: true });
+                                    
+                                    const expiredInfo = `❌ *দুঃখজনক! রক্তের অনুরোধটি মেয়াদোত্তীর্ণ বা ব্যর্থ হয়েছে!*\n\n` +
+                                                        `⚠️ নির্ধারিত সময়ের মধ্যে রক্তদান সম্পন্ন করা সম্ভব হয়নি।`;
+                                    sendTelegramNotification("⌛ *বজরা ব্লাড ডোনেট ক্লাব - অনুরোধ মেয়াদোত্তীর্ণ*", emergency.bloodGroup, emergency.location, emergency.amount, emergency.problem, emergency.refPhone, expiredInfo);
+                                }
+                            }
+
                             if ((emergency.status || "Pending") === "Pending") {
                                 const lastNotified = emergency.lastNotified || emergency.timestamp || currentTime;
                                 if (currentTime - lastNotified >= sixHours) {
@@ -403,7 +415,7 @@
                 date: document.getElementById('emDate').value,
                 time: document.getElementById('emTime').value,
                 location: loc, refName: document.getElementById('emRefName').value,
-                refPhone: rPhone, status: "Pending", timestamp: currentTime, lastNotified: currentTime
+                refPhone: rPhone, status: "Pending", expiredNotified: false, timestamp: currentTime, lastNotified: currentTime
             };
 
             if (emId) {
@@ -540,10 +552,11 @@
             allEmergencies.forEach(em => {
                 if (em.status === "Complete") {
                     completedList.push(em);
+                } else if (em.status === "Expired") {
+                    expiredList.push(em);
                 } else {
                     if (em.date && em.time) {
                         const targetDateTime = new Date(`${em.date}T${em.time}`);
-                        // পোস্ট করার সাথে সাথেই সময় ট্র্যাক হবে; নির্ধারিত সময় পার হয়ে গেলে সরাসরি এক্সপায়ার্ড বক্সে চলে যাবে
                         if (now > targetDateTime) {
                             expiredList.push(em);
                         } else {
@@ -645,7 +658,7 @@
                 <p style="margin: 4px 0;">🏥 <strong>স্থান:</strong> ${em.location || 'অজানা'}</p>
                 <p style="margin: 4px 0;">👤 <strong>রেফারেন্স:</strong> ${em.refName || 'নেই'}</p>
                 <div style="margin-top: 10px; font-size: 0.9em; color: #dc3545; background: #f8d7da; padding: 6px; border-radius: 4px; text-align: center;">
-                    ❌ নির্ধারিত সময়ের মধ্যে রক্তদান সম্পন্ন করা হয়নি।
+                    ❌ নির্ধারিত সময়ের মধ্যে রক্তদান সম্পন্ন করা হয়নি (ব্যর্থ)।
                 </div>
             `;
             return card;
