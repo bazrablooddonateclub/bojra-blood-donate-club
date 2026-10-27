@@ -82,7 +82,7 @@
         <div class="blood-icon-left">🩸</div>
         <div class="blood-icon-right">🩸</div>
         <h1>বজরা ব্লাড ডোনেট ক্লাব</h1>
-        <p>জরুরী প্রয়োজনে রক্তদান ও জীবন বাঁচানোই আমাদের লক্ষ্য</p>
+        <p>জরুরী প্রয়োজনে জীবন বাঁচানোই আমাদের লক্ষ্য</p>
     </header>
 
     <div class="container">
@@ -446,7 +446,7 @@
             document.getElementById('emergencyForm').scrollIntoView({ behavior: 'smooth' });
         };
 
-        // ৩ মাসের রেস্ট্রিকশন চেক ফাংশন (এখন থেকে ডোনার লিস্ট এবং জরুরি তালিকা উভয় জায়গার জন্যই কাজ করবে)
+        // ৩ মাসের রেস্ট্রিকশন চেক ফাংশন (ফোর্স অ্যালার্ট সহ)
         window.checkDonorAndCall = function(donorPhone) {
             if (!donorPhone) {
                 alert("মোবাইল নম্বর পাওয়া যায়নি!");
@@ -499,6 +499,7 @@
                 const cleanPhone = normalizePhone(donatedPhone);
 
                 localStorage.setItem('donor_last_donate_' + cleanPhone, now.toISOString());
+                alert("সফলভাবে রক্তদানের তারিখ সেভ করা হয়েছে! এখন এই নম্বরে ৩ মাসের রেস্ট্রিকশন কার্যকর রয়েছে।");
 
                 db.ref('emergencies/' + id).update({ 
                     status: "Complete", 
