@@ -23,30 +23,6 @@
         header h1 { margin: 0; font-size: 2.3em; position: relative; z-index: 2; }
         header p { margin-top: 8px; font-size: 1.1em; opacity: 0.95; position: relative; z-index: 2; }
 
-        .btn-telegram-header {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: #ffffff;
-            color: #0088cc;
-            text-decoration: none;
-            padding: 8px 18px;
-            border-radius: 25px;
-            font-weight: bold;
-            font-size: 0.95em;
-            margin-top: 15px;
-            position: relative;
-            z-index: 2;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        .btn-telegram-header:hover {
-            background: #f0f4f8;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
-        }
-
         .blood-icon-left, .blood-icon-right {
             position: absolute; top: 50%; transform: translateY(-50%);
             font-size: 3em; opacity: 0.85; animation: pulseAnim 1.5s infinite ease-in-out; z-index: 1;
@@ -69,6 +45,7 @@
         .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
         .emergency-card-box { border: 2px solid #d9534f; background: #fff5f5; }
         .completed-card-box { border: 2px solid #28a745; background: #f0fff4; }
+        .expired-card-box { border: 2px solid #6c757d; background: #f8f9fa; }
         .stats-card-box { border: 2px solid #17a2b8; background: #e8f4f8; }
         h2 { border-bottom: 2px solid #d9534f; padding-bottom: 8px; color: #d9534f; margin-top: 0; }
         .form-group { margin-bottom: 15px; }
@@ -83,14 +60,12 @@
         .donor-card { background: #fafafa; border-left: 5px solid #d9534f; padding: 15px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: relative; }
         .emergency-item { background: #ffffff; border-left: 5px solid #c9302c; border-top: 2px solid #c9302c; }
         .completed-item { background: #ffffff; border-left: 5px solid #28a745; border-top: 2px solid #28a745; }
+        .expired-item { background: #ffffff; border-left: 5px solid #6c757d; border-top: 2px solid #6c757d; }
         .stats-item { background: #ffffff; border-left: 5px solid #17a2b8; border-top: 2px solid #17a2b8; padding: 12px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .blood-badge { background: #d9534f; color: white; padding: 4px 10px; border-radius: 20px; font-weight: bold; font-size: 0.9em; position: absolute; top: 15px; right: 15px; }
         .btn-call { display: block; text-align: center; background: #28a745; color: white; text-decoration: none; padding: 8px; border-radius: 5px; margin-top: 10px; font-weight: bold; cursor: pointer; border: none; width: 100%; font-size: 16px;}
         .btn-call:hover { background: #218838; }
         
-        .btn-edit { background: #007bff; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 0.85em; width: 100%; margin-top: 10px; font-weight: bold; }
-        .btn-edit:hover { background: #0056b3; }
-
         .status-badge { display: inline-block; padding: 8px 10px; border-radius: 4px; font-weight: bold; font-size: 0.9em; margin-top: 8px; text-align: center; width: 100%; cursor: pointer; border: none; }
         .status-pending { background: #ffc107; color: #333; }
         .status-complete { background: #28a745; color: white; }
@@ -181,6 +156,14 @@
             <h2 style="color: #28a745; border-bottom: 2px solid #28a745;">✅ সম্পন্ন হওয়া রক্তের অনুরোধসমূহ</h2>
             <div class="donor-list" id="completedEmergencyList">
                 <div class="loading">কোনো সম্পন্ন হওয়া অনুরোধ নেই...</div>
+            </div>
+        </div>
+
+        <!-- মেয়াদোত্তীর্ণ বা অসমাপ্ত রক্তের অনুরোধের তালিকা -->
+        <div class="card expired-card-box">
+            <h2 style="color: #6c757d; border-bottom: 2px solid #6c757d;">⌛ মেয়াদোত্তীর্ণ বা রক্ত প্রদান সম্ভব হয়নি</h2>
+            <div class="donor-list" id="expiredEmergencyList">
+                <div class="loading">কোনো মেয়াদোত্তীর্ণ অনুরোধ নেই...</div>
             </div>
         </div>
 
@@ -576,14 +559,37 @@
         function displayEmergencies() {
             const emergencyList = document.getElementById('emergencyList');
             const completedEmergencyList = document.getElementById('completedEmergencyList');
+            const expiredEmergencyList = document.getElementById('expiredEmergencyList');
+            
             emergencyList.innerHTML = '';
             completedEmergencyList.innerHTML = '';
+            expiredEmergencyList.innerHTML = '';
 
-            const pendingList = allEmergencies.filter(em => (em.status || "Pending") === "Pending");
-            const completedList = allEmergencies.filter(em => em.status === "Complete");
+            const now = new Date();
+            const pendingList = [];
+            const completedList = [];
+            const expiredList = [];
+
+            allEmergencies.forEach(em => {
+                if (em.status === "Complete") {
+                    completedList.push(em);
+                } else {
+                    // তারিখ ও সময় চেক করা
+                    if (em.date && em.time) {
+                        const targetDateTime = new Date(`${em.date}T${em.time}`);
+                        if (now > targetDateTime) {
+                            expiredList.push(em); // সময় পার হয়ে গেছে কিন্তু কমপ্লিট হয়নি
+                        } else {
+                            pendingList.push(em); // এখনো সময় আছে
+                        }
+                    } else {
+                        pendingList.push(em);
+                    }
+                }
+            });
 
             if (pendingList.length === 0) {
-                emergencyList.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">বর্তমানে কোনো জরুরী রক্তের অনুরোধ নেই।</p>';
+                emergencyList.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">বর্তমানে কোনো সক্রিয় জরুরী রক্তের অনুরোধ নেই।</p>';
             } else {
                 pendingList.reverse().forEach(em => emergencyList.appendChild(createEmergencyCard(em, "Pending")));
             }
@@ -591,7 +597,14 @@
             if (completedList.length === 0) {
                 completedEmergencyList.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">কোনো সম্পন্ন হওয়া অনুরোধ নেই।</p>';
             } else {
+                completedList.reverse().forEach(em => completedEmergencyCard(em, "Complete"));
                 completedList.reverse().forEach(em => completedEmergencyList.appendChild(createEmergencyCard(em, "Complete")));
+            }
+
+            if (expiredList.length === 0) {
+                expiredEmergencyList.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">কোনো মেয়াদোত্তীর্ণ অনুরোধ নেই।</p>';
+            } else {
+                expiredList.reverse().forEach(em => expiredEmergencyList.appendChild(createExpiredCard(em)));
             }
         }
 
@@ -650,7 +663,24 @@
                 <button onclick="checkDonorAndCall('${em.refPhone || ''}')" class="btn-call" style="background: ${isComplete ? '#28a745' : '#c9302c'};">📞 কল করুন (${em.refPhone || 'নম্বর নেই'})</button>
                 <button class="status-badge ${statusClass}" onclick="toggleStatus('${em.id}', '${status}', ${emJSON})">${statusText}</button>
                 ${instructionHTML}
-                <button class="btn-edit" onclick="editEmergency('${em.id}')">✏️ অনুরোধ এডিট করুন</button>
+            `;
+            return card;
+        }
+
+        function createExpiredCard(em) {
+            const card = document.createElement('div');
+            card.className = 'donor-card expired-item';
+            card.innerHTML = `
+                <span class="blood-badge" style="background: #6c757d;">মেয়াদোত্তীর্ণ</span>
+                <h3 style="margin:0 0 8px 0; color: #6c757d;">গ্রুপ: ${em.bloodGroup || 'N/A'}</h3>
+                <p style="margin: 4px 0;">🚨 <strong>রোগীর সমস্যা:</strong> ${em.problem || 'বলা হয়নি'}</p>
+                <p style="margin: 4px 0;">🩸 <strong>পরিমাণ:</strong> ${em.amount || 'অজানা'}</p>
+                <p style="margin: 4px 0;">📅 <strong>নির্ধারিত সময় পার:</strong> ${em.date || ''} (${em.time || ''})</p>
+                <p style="margin: 4px 0;">🏥 <strong>স্থান:</strong> ${em.location || 'অজানা'}</p>
+                <p style="margin: 4px 0;">👤 <strong>রেফারেন্স:</strong> ${em.refName || 'নেই'}</p>
+                <div style="margin-top: 10px; font-size: 0.9em; color: #dc3545; background: #f8d7da; padding: 6px; border-radius: 4px; text-align: center;">
+                    ❌ নির্ধারিত সময়ের মধ্যে রক্তদান সম্পন্ন হয়নি।
+                </div>
             `;
             return card;
         }
