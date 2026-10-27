@@ -243,6 +243,19 @@
         let allDonors = [];
         let allEmergencies = [];
 
+        // ফোন নম্বর নিখুঁতভাবে মিল করার জন্য নরমালাইজেশন ফাংশন
+        function normalizePhone(phone) {
+            if (!phone) return '';
+            let digits = phone.replace(/\D/g, '');
+            if (digits.startsWith('880') && digits.length > 11) {
+                digits = digits.substring(2);
+            }
+            if (digits.length > 11) {
+                digits = digits.slice(-11);
+            }
+            return digits;
+        }
+
         function sendTelegramNotification(title, bloodGroup, location, amount, problem, refPhone, extraDetails = "") {
             const botToken = "8975147675:AAGrWXFE4-y_L7Sw55P58PL17ukfUlxHAB0";
             const chatId = "8352480462";
@@ -293,12 +306,12 @@
                             const emergency = { id: key, ...data[key] };
                             allEmergencies.push(emergency);
 
-                            // রক্তদান সম্পন্ন হলে ডোনারের মোবাইল নম্বর লোকালস্টোরেজে সেভ হবে ৩ মাসের রেস্ট্রিকশনের জন্য
+                            // যদি রিকোয়েস্টটি কমপ্লিট থাকে, তবে দাতার নম্বর নরমালাইজ করে লোকালস্টোরেজে সেভ হবে
                             if (emergency.status === "Complete" && emergency.donatedPhone) {
-                                const cleanNum = emergency.donatedPhone.replace(/\D/g, '').slice(-11);
+                                const cleanNum = normalizePhone(emergency.donatedPhone);
                                 if (cleanNum.length >= 10) {
-                                    if (!localStorage.getItem('last_donate_date_' + cleanNum)) {
-                                        localStorage.setItem('last_donate_date_' + cleanNum, new Date().toISOString());
+                                    if (!localStorage.getItem('donor_last_donate_' + cleanNum)) {
+                                        localStorage.setItem('donor_last_donate_' + cleanNum, new Date().toISOString());
                                     }
                                 }
                             }
@@ -307,7 +320,7 @@
                                 const lastNotified = emergency.lastNotified || emergency.timestamp || currentTime;
                                 if (currentTime - lastNotified >= sixHours) {
                                     sendTelegramNotification(
-                                        "⏰ *জরুরী রক্তদানের রিমাইন্ডার (৬ ঘণ্টা পর)*",
+                                        "⏰ *জরুরী রক্তের রিমাইন্ডার (৬ ঘণ্টা পর)*",
                                         emergency.bloodGroup, emergency.location, emergency.amount, emergency.problem, emergency.refPhone
                                     );
                                     db.ref('emergencies/' + key).update({ lastNotified: currentTime });
@@ -437,22 +450,22 @@
             document.getElementById('emergencyForm').scrollIntoView({ behavior: 'smooth' });
         };
 
-        // শুধুমাত্র রক্তদাতার নম্বরের ক্ষেত্রে ৩ মাসের রেস্ট্রিকশন চেক করবে
+        // রক্তদাতার ৩ মাসের রেস্ট্রিকশন চেক ফাংশন
         window.checkDonorAndCall = function(donorPhone) {
             if (!donorPhone) {
                 alert("মোবাইল নম্বর পাওয়া যায়নি!");
                 return;
             }
 
-            const cleanTarget = donorPhone.replace(/\D/g, '').slice(-11);
+            const cleanTarget = normalizePhone(donorPhone);
             let isRestricted = false;
             let remainingDays = 0;
 
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
-                if (key && key.startsWith('last_donate_date_')) {
-                    const savedNum = key.replace('last_donate_date_', '');
-                    if (cleanTarget.includes(savedNum) || savedNum.includes(cleanTarget)) {
+                if (key && key.startsWith('donor_last_donate_')) {
+                    const savedNum = key.replace('donor_last_donate_', '');
+                    if (cleanTarget === savedNum) {
                         const lastDateStr = localStorage.getItem(key);
                         const lastDate = new Date(lastDateStr);
                         const now = new Date();
@@ -487,10 +500,10 @@
                 const donateDateStr = now.toLocaleDateString('bn-BD');
                 const donatedBy = donorName || "অজানা ডোনার";
                 const donatedPhone = donorPhone.trim();
-                const cleanPhone = donatedPhone.replace(/\D/g, '').slice(-11);
+                const cleanPhone = normalizePhone(donatedPhone);
 
                 // দাতার মোবাইল নম্বরের বিপরীতে বর্তমান সময় সেভ করা হলো
-                localStorage.setItem('last_donate_date_' + cleanPhone, now.toISOString());
+                localStorage.setItem('donor_last_donate_' + cleanPhone, now.toISOString());
 
                 db.ref('emergencies/' + id).update({ 
                     status: "Complete", 
