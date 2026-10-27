@@ -83,11 +83,13 @@
         <h1>বজরা ব্লাড ডোনেট ক্লাব</h1>
         <p>জরুরী প্রয়োজনে জীবন বাঁচানোই আমাদের লক্ষ্য</p>
         
-        <!-- টেলিগ্রাম বট ইউজারনেম বক্স -->
-        <div style="background: rgba(255, 255, 255, 0.2); padding: 10px 15px; border-radius: 8px; display: inline-block; margin-top: 15px; position: relative; z-index: 2;">
-            <p style="margin: 0; font-size: 0.95em; font-weight: bold;">✈️ টেলিগ্রাম বট ইউজারনেম:</p>
-            <span style="font-size: 1.1em; font-weight: bold; background: #fff; color: #0088cc; padding: 4px 10px; border-radius: 4px; display: inline-block; margin-top: 5px; user-select: all;">@bozra_blood_club_bot</span>
-        </div>
+        <!-- টেলিগ্রাম বট লিং কযুক্ত বক্স -->
+        <a href="https://t.me/bozra_blood_club_bot" target="_blank" style="text-decoration: none; color: inherit; display: inline-block; margin-top: 15px;">
+            <div style="background: rgba(255, 255, 255, 0.2); padding: 10px 15px; border-radius: 8px; position: relative; z-index: 2; transition: 0.3s;" onmouseover="this.style.background='rgba(255, 255, 255, 0.3)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.2)'">
+                <p style="margin: 0; font-size: 0.95em; font-weight: bold;">✈️ টেলিগ্রাম বট লিংক:</p>
+                <span style="font-size: 1.1em; font-weight: bold; background: #fff; color: #0088cc; padding: 4px 10px; border-radius: 4px; display: inline-block; margin-top: 5px;">@bozra_blood_club_bot</span>
+            </div>
+        </a>
     </header>
 
     <div class="container">
@@ -161,7 +163,7 @@
 
         <!-- মেয়াদোত্তীর্ণ বা অসমাপ্ত রক্তের অনুরোধের তালিকা -->
         <div class="card expired-card-box">
-            <h2 style="color: #6c757d; border-bottom: 2px solid #6c757d;">⌛ মেয়াদোত্তীর্ণ বা রক্ত প্রদান সম্ভব হয়নি</h2>
+            <h2 style="color: #6c757d; border-bottom: 2px solid #6c757d;">⌛ মেয়াদোত্তীর্ণ বা রক্ত প্রদান সম্ভব হয়নি</h2>
             <div class="donor-list" id="expiredEmergencyList">
                 <div class="loading">কোনো মেয়াদোত্তীর্ণ অনুরোধ নেই...</div>
             </div>
@@ -268,7 +270,7 @@
             return digits;
         }
 
-        // নোটিফিকেশনে তারিখ ও সময় যুক্ত করার আপডেট ফাংশন
+        // নোটিফিকেশনে তারিখ ও সময় যুক্ত করার আপডেট ফাংশন
         function sendTelegramNotification(title, bloodGroup, location, amount, problem, refPhone, date = "", time = "", extraDetails = "") {
             const botToken = "8975147675:AAGrWXFE4-y_L7Sw55P58PL17ukfUlxHAB0";
             const targets = ["8352480462", "@bazra_blood_club"]; 
@@ -279,7 +281,7 @@
                           `📦 *পরিমাণ:* ${amount}\n`;
 
             if (date && time) {
-                message += `📅 *রক্তদানের তারিখ ও সময়:* ${date} (${time})\n`;
+                message += `📅 *রক্তদানের তারিখ ও সময়:* ${date} (${time})\n`;
             }
 
             message += `📋 *সমস্যা:* ${problem}\n` +
@@ -335,7 +337,7 @@
                                 }
                             }
 
-                            // সময় পার হয়ে গেলে স্বয়ংক্রিয়ভাবে Expired স্ট্যাটাস এবং টেলিগ্রাম নোটিফিকেশন পাঠাবে
+                            // সময় পার হয়ে গেলে স্বয়ংক্রিয়ভাবে Expired স্ট্যাটাস এবং টেলিগ্রাম নোটিফিকেশন পাঠাবে
                             if (emergency.status === "Pending" && emergency.date && emergency.time) {
                                 const targetDateTime = new Date(`${emergency.date}T${emergency.time}`);
                                 if (currentTime > targetDateTime.getTime()) {
@@ -344,7 +346,7 @@
                                     if (!emergency.expiredNotified) {
                                         db.ref('emergencies/' + key).update({ expiredNotified: true });
                                         const expiredInfo = `❌ *দুঃখজনক! রক্তের অনুরোধটি মেয়াদোত্তীর্ণ বা ব্যর্থ হয়েছে!*\n\n` +
-                                                            `⚠️ নির্ধারিত সময়ের মধ্যে রক্তদান সম্পন্ন করা সম্ভব হয়নি।`;
+                                                            `⚠️ নির্ধারিত সময়ের মধ্যে রক্তদান সম্পন্ন করা সম্ভব হয়নি।`;
                                         sendTelegramNotification("⌛ *বজরা ব্লাড ডোনেট ক্লাব - অনুরোধ মেয়াদোত্তীর্ণ*", emergency.bloodGroup, emergency.location, emergency.amount, emergency.problem, emergency.refPhone, emergency.date, emergency.time, expiredInfo);
                                     }
                                 }
@@ -634,24 +636,24 @@
 
             let instructionHTML = isComplete 
                 ? `<div style="margin-top: 8px; font-size: 0.9em; color: #28a745; background: #e6f4ea; padding: 6px; border-radius: 4px;">
-                    ✅ <strong>রক্তদাতা:</strong> ${em.donatedBy || 'অজানা'}<br>
-                    📞 <strong>মোবাইল:</strong> ${em.donatedPhone || 'নেই'}<br>
-                    📅 <strong>তারিখ:</strong> ${em.donateDate || 'প্রযোজ্য নয়'}
+                        <strong>রক্তদাতা:</strong> ${em.donatedBy || 'অজানা'}<br>
+                        <strong>মোবাইল:</strong> ${em.donatedPhone || 'নেই'}<br>
+                        <strong>তারিখ:</strong> ${em.donateDate || 'অজানা'}
                    </div>`
-                : '<div class="instruction-text">[ রক্ত প্রদান সম্পূর্ণ হলে এই বাটন এ ক্লিক করবেন ]</div>';
+                : `<div class="instruction-text">রক্তদান সম্পন্ন হলে নিচের স্ট্যাটাস বাটনে ক্লিক করুন</div>`;
 
             const card = document.createElement('div');
-            card.className = isComplete ? 'donor-card completed-item' : 'donor-card emergency-item';
+            card.className = `donor-card ${isComplete ? 'completed-item' : 'emergency-item'}`;
             card.innerHTML = `
-                <span class="blood-badge" style="background: ${isComplete ? '#28a745' : '#c9302c'};">${isComplete ? 'সম্পন্ন' : 'জরুরী!!!'}</span>
-                <h3 style="margin:0 0 8px 0; color: ${isComplete ? '#28a745' : '#c9302c'};">গ্রুপ: ${em.bloodGroup || 'N/A'}</h3>
-                <p style="margin: 4px 0;">🚨 <strong>রোগীর সমস্যা:</strong> ${em.problem || 'বলা হয়নি'}</p>
-                <p style="margin: 4px 0;">🩸 <strong>পরিমাণ:</strong> ${em.amount || 'অজানা'}</p>
+                <span class="blood-badge">${em.bloodGroup || 'N/A'}</span>
+                <h3 style="margin:0 0 8px 0;">সমস্যা: ${em.problem || 'অজানা'}</h3>
+                <p style="margin: 4px 0;">📦 <strong>পরিমাণ:</strong> ${em.amount || 'অজানা'}</p>
                 <p style="margin: 4px 0;">📅 <strong>তারিখ ও সময়:</strong> ${em.date || ''} (${em.time || ''})</p>
-                <p style="margin: 4px 0;">🏥 <strong>স্থান:</strong> ${em.location || 'অজানা'}</p>
+                <p style="margin: 4px 0;">📍 <strong>স্থান:</strong> ${em.location || 'অজানা'}</p>
                 <p style="margin: 4px 0;">👤 <strong>রেফারেন্স:</strong> ${em.refName || 'নেই'}</p>
-                <button onclick="checkDonorAndCall('${em.refPhone || ''}')" class="btn-call" style="background: ${isComplete ? '#28a745' : '#c9302c'};">📞 কল করুন (${em.refPhone || 'নম্বর নেই'})</button>
-                <button class="status-badge ${statusClass}" onclick="toggleStatus('${em.id}', '${status}', ${emJSON})">${statusText}</button>
+                <button onclick="checkDonorAndCall('${em.refPhone || ''}')" class="btn-call">📞 কল করুন (${em.refPhone || 'নম্বর নেই'})</button>
+                <button onclick="editEmergency('${em.id}')" style="background: #ffc107; color: #333; margin-top: 8px; padding: 8px; font-size: 14px;">✏️ এডিট করুন</button>
+                <button onclick="toggleStatus('${em.id}', '${status}', ${emJSON})" class="status-badge ${statusClass}">${statusText}</button>
                 ${instructionHTML}
             `;
             return card;
@@ -661,24 +663,19 @@
             const card = document.createElement('div');
             card.className = 'donor-card expired-item';
             card.innerHTML = `
-                <span class="blood-badge" style="background: #6c757d;">মেয়াদোত্তীর্ণ</span>
-                <h3 style="margin:0 0 8px 0; color: #6c757d;">গ্রুপ: ${em.bloodGroup || 'N/A'}</h3>
-                <p style="margin: 4px 0;">🚨 <strong>রোগীর সমস্যা:</strong> ${em.problem || 'বলা হয়নি'}</p>
-                <p style="margin: 4px 0;">🩸 <strong>পরিমাণ:</strong> ${em.amount || 'অজানা'}</p>
-                <p style="margin: 4px 0;">📅 <strong>নির্ধারিত সময় পার:</strong> ${em.date || ''} (${em.time || ''})</p>
-                <p style="margin: 4px 0;">🏥 <strong>স্থান:</strong> ${em.location || 'অজানা'}</p>
+                <span class="blood-badge" style="background: #6c757d;">⌛ Expired</span>
+                <h3 style="margin:0 0 8px 0; color: #555;">সমস্যা: ${em.problem || 'অজানা'}</h3>
+                <p style="margin: 4px 0;">📦 <strong>পরিমাণ:</strong> ${em.amount || 'অজানা'}</p>
+                <p style="margin: 4px 0;">📅 <strong>তারিখ ও সময়:</strong> ${em.date || ''} (${em.time || ''})</p>
+                <p style="margin: 4px 0;">📍 <strong>স্থান:</strong> ${em.location || 'অজানা'}</p>
                 <p style="margin: 4px 0;">👤 <strong>রেফারেন্স:</strong> ${em.refName || 'নেই'}</p>
-                <div style="margin-top: 10px; font-size: 0.9em; color: #dc3545; background: #f8d7da; padding: 6px; border-radius: 4px; text-align: center;">
-                    ❌ নির্ধারিত সময়ের মধ্যে রক্তদান সম্পন্ন করা হয়নি (ব্যর্থ)।
+                <button onclick="checkDonorAndCall('${em.refPhone || ''}')" class="btn-call">📞 কল করুন (${em.refPhone || 'নম্বর নেই'})</button>
+                <div style="margin-top: 8px; font-size: 0.9em; color: #dc3545; background: #f8d7da; padding: 6px; border-radius: 4px; text-align: center; font-weight: bold;">
+                    ⚠️ রক্তদান সম্পন্ন হয়নি / মেয়াদোত্তীর্ণ
                 </div>
             `;
             return card;
         }
-
-        document.getElementById('filterGroup').value = "";
-        document.getElementById('filterLocation').value = "";
-        document.getElementById('filterGroup').addEventListener('change', displayDonors);
-        document.getElementById('filterLocation').addEventListener('input', displayDonors);
 
         loadDonors();
         loadEmergencies();
