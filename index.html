@@ -447,39 +447,6 @@
         };
 
         window.checkDonorAndCall = function(donorPhone) {
-            if (!donorPhone) {
-                alert("মোবাইল নম্বর পাওয়া যায়নি!");
-                return;
-            }
-
-            const cleanTarget = normalizePhone(donorPhone);
-            let isRestricted = false;
-            let remainingDays = 0;
-
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                if (key && key.startsWith('donor_last_donate_')) {
-                    const savedNum = key.replace('donor_last_donate_', '');
-                    if (cleanTarget === savedNum) {
-                        const lastDateStr = localStorage.getItem(key);
-                        const lastDate = new Date(lastDateStr);
-                        const now = new Date();
-                        const diffDays = (now - lastDate) / (1000 * 60 * 60 * 24);
-
-                        if (diffDays < 90) {
-                            isRestricted = true;
-                            remainingDays = Math.ceil(90 - diffDays);
-                            break;
-                        }
-                    }
-                }
-            }
-
-            if (isRestricted) {
-                alert(`⚠️ সতর্কবার্তা!\n\nএই রক্তদাতা গত ৩ মাসের মধ্যে রক্তদান করেছেন। নিয়ম অনুযায়ী তার আরও প্রায় ${remainingDays} দিন পর রক্তদান করার কথা। অনুগ্রহ করে অন্য ডোনারের সাথে যোগাযোগ করুন।`);
-                return;
-            }
-
             window.location.href = 'tel:' + donorPhone;
         };
 
@@ -574,13 +541,13 @@
                 if (em.status === "Complete") {
                     completedList.push(em);
                 } else {
-                    // তারিখ ও সময় চেক করা
                     if (em.date && em.time) {
                         const targetDateTime = new Date(`${em.date}T${em.time}`);
+                        // পোস্ট করার সাথে সাথেই সময় ট্র্যাক হবে; নির্ধারিত সময় পার হয়ে গেলে সরাসরি এক্সপায়ার্ড বক্সে চলে যাবে
                         if (now > targetDateTime) {
-                            expiredList.push(em); // সময় পার হয়ে গেছে কিন্তু কমপ্লিট হয়নি
+                            expiredList.push(em);
                         } else {
-                            pendingList.push(em); // এখনো সময় আছে
+                            pendingList.push(em);
                         }
                     } else {
                         pendingList.push(em);
@@ -597,7 +564,6 @@
             if (completedList.length === 0) {
                 completedEmergencyList.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">কোনো সম্পন্ন হওয়া অনুরোধ নেই।</p>';
             } else {
-                completedList.reverse().forEach(em => completedEmergencyCard(em, "Complete"));
                 completedList.reverse().forEach(em => completedEmergencyList.appendChild(createEmergencyCard(em, "Complete")));
             }
 
@@ -679,7 +645,7 @@
                 <p style="margin: 4px 0;">🏥 <strong>স্থান:</strong> ${em.location || 'অজানা'}</p>
                 <p style="margin: 4px 0;">👤 <strong>রেফারেন্স:</strong> ${em.refName || 'নেই'}</p>
                 <div style="margin-top: 10px; font-size: 0.9em; color: #dc3545; background: #f8d7da; padding: 6px; border-radius: 4px; text-align: center;">
-                    ❌ নির্ধারিত সময়ের মধ্যে রক্তদান সম্পন্ন হয়নি।
+                    ❌ নির্ধারিত সময়ের মধ্যে রক্তদান সম্পন্ন করা হয়নি।
                 </div>
             `;
             return card;
