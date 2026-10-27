@@ -8,7 +8,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 </head>
 <body>
-    <h2>Background Checking...</h2>
+    <h2 id="status">Background Checking...</h2>
     <script>
         const firebaseConfig = {
             databaseURL: "https://bazra-blood-donate-club-web-default-rtdb.asia-southeast1.firebasedatabase.app"
@@ -22,24 +22,43 @@
             const botToken = "8975147675:AAGrWXFE4-y_L7Sw55P58PL17ukfUlxHAB0";
             const targets = ["8352480462", "@bazra_blood_club"]; 
 
-            let message = title + "\n\n" +
-                          `🩸 *রক্তের গ্রুপ:* ${bloodGroup}\n` +
-                          `🏥 *স্থান:* ${location}\n` +
-                          `📦 *পরিমাণ:* ${amount}\n` +
-                          `📅 *রক্তদানের তারিখ ও সময়:* ${date} (${time})\n` +
-                          `📋 *সমস্যা:* ${problem}\n` +
-                          `📞 *রক্ত গ্রহীতার মোবাইল:* ${refPhone}\n\n` +
+            let message = `${title}\n\n` +
+                          `🩸 রক্তের গ্রুপ: ${bloodGroup}\n` +
+                          `🏥 স্থান: ${location}\n` +
+                          `📦 পরিমাণ: ${amount}\n` +
+                          `📅 রক্তদানের তারিখ ও সময়: ${date} (${time})\n` +
+                          `📋 সমস্যা: ${problem}\n` +
+                          `📞 রক্ত গ্রহীতার মোবাইল: ${refPhone}\n\n` +
                           `${extraDetails}`;
 
             const promises = targets.map(targetId => {
                 return fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ chat_id: targetId, text: message, parse_mode: "Markdown" })
+                    body: JSON.stringify({ chat_id: targetId, text: message })
                 });
             });
 
             await Promise.all(promises);
+        }
+
+        function parseTargetTime(dateStr, timeStr) {
+            try {
+                if (!dateStr || !timeStr) return 0;
+                const parts = dateStr.split('-');
+                const timeParts = timeStr.split(':');
+                if (parts.length === 3 && timeParts.length >= 2) {
+                    const year = parseInt(parts[0], 10);
+                    const month = parseInt(parts[1], 10) - 1;
+                    const day = parseInt(parts[2], 10);
+                    const hour = parseInt(timeParts[0], 10);
+                    const minute = parseInt(timeParts[1], 10);
+                    return new Date(year, month, day, hour, minute).getTime();
+                }
+            } catch (e) {
+                console.error("Date Parsing Error", e);
+            }
+            return 0;
         }
 
         async function checkAndNotify() {
@@ -47,37 +66,46 @@
                 const snapshot = await db.ref('emergencies').once('value');
                 const data = snapshot.val();
                 const currentTime = Date.now();
+                let expiredFound = false;
 
                 if (data) {
                     const keys = Object.keys(data);
                     for (let key of keys) {
                         const emergency = data[key];
-                        if (emergency && (emergency.status === "Pending" || !emergency.status) && emergency.date && emergency.time) {
-                            const targetDateTime = new Date(`${emergency.date}T${emergency.time}`).getTime();
+                        // Pending বা যেকোনো স্ট্যাটাস যদি সময় পার হয়ে যায়
+                        if (emergency && emergency.status !== "Complete" && emergency.status !== "Expired") {
+                            const targetDateTime = parseTargetTime(emergency.date, emergency.time);
                             
-                            // সময় পার হয়ে গেলে Expired করে টেলিগ্রাম মেসেজ পাঠাবে
-                            if (currentTime > targetDateTime) {
-                                await db.ref('emergencies/' + key).update({ status: "Expired" });
+                            if (targetDateTime > 0 && currentTime > targetDateTime) {
+                                expiredFound = true;
+                                await db.ref('emergencies/' + key).update({ 
+                                    status: "Expired",
+                                    expiredNotified: true 
+                                });
                                 
-                                if (!emergency.expiredNotified) {
-                                    await db.ref('emergencies/' + key).update({ expiredNotified: true });
-                                    const expiredInfo = `❌ *দুঃখজনক! রক্তের অনুরোধটি মেয়াদোত্তীর্ণ বা ব্যর্থ হয়েছে!*\n\n⚠️ নির্ধারিত সময়ের মধ্যে রক্তদান সম্পন্ন করা সম্ভব হয়নি।`;
-                                    await sendTelegramNotification(
-                                        "⌛ *বজরা ব্লাড ডোনেট ক্লাব - অনুরোধ মেয়াদোত্তীর্ণ*",
-                                        emergency.bloodGroup, emergency.location, emergency.amount, 
-                                        emergency.problem, emergency.refPhone, emergency.date, emergency.time, expiredInfo
-                                    );
-                                }
+                                const expiredInfo = `❌ দুঃখজনক! রক্তের অনুরোধটি মেয়াদোত্তীর্ণ বা ব্যর্থ হয়েছে!\n\n⚠️ নির্ধারিত সময়ের মধ্যে রক্তদান সম্পন্ন করা সম্ভব হয়নি।`;
+                                await sendTelegramNotification(
+                                    "⌛ বজরা ব্লাড ডোনেট ক্লাব - অনুরোধ মেয়াদোত্তীর্ণ",
+                                    emergency.bloodGroup || 'N/A', 
+                                    emergency.location || 'অজানা', 
+                                    emergency.amount || 'অজানা', 
+                                    emergency.problem || 'বলা হয়নি', 
+                                    emergency.refPhone || 'নেই', 
+                                    emergency.date || '', 
+                                    emergency.time || '', 
+                                    expiredInfo
+                                );
                             }
                         }
                     }
                 }
+                document.getElementById('status').innerText = expiredFound ? "Expired items updated and notified!" : "No expired items found.";
             } catch (err) {
                 console.error("Auto check error:", err);
+                document.getElementById('status').innerText = "Error: " + err.message;
             }
         }
 
-        // সাথে সাথে এক্সিকিউট করা
         checkAndNotify();
     </script>
 </body>
