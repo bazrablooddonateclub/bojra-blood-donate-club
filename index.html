@@ -82,7 +82,7 @@
         <div class="blood-icon-left">🩸</div>
         <div class="blood-icon-right">🩸</div>
         <h1>বজরা ব্লাড ডোনেট ক্লাব</h1>
-        <p>জরুরী প্রয়োজনে জীবন বাঁচানোই আমাদের লক্ষ্য</p>
+        <p>জরুরী প্রয়োজনে রক্তদান ও জীবন বাঁচানোই আমাদের লক্ষ্য</p>
     </header>
 
     <div class="container">
@@ -292,6 +292,7 @@
             });
         }
 
+        // ফায়ারবেস থেকে সব ডেটা লোড করার সময় টেলিগ্রাম বটের মাধ্যমে ৩ মাসের রেকর্ড চেক ও সিংক করা হবে
         function loadEmergencies() {
             db.ref('emergencies').on('value', (snapshot) => {
                 const data = snapshot.val();
@@ -305,12 +306,13 @@
                             const emergency = { id: key, ...data[key] };
                             allEmergencies.push(emergency);
 
+                            // রক্তদান সম্পন্ন হলে টেলিগ্রাম বটের ডাটাবেজে ও লোকালস্টোরেজে স্থায়ীভাবে সেভ হবে
                             if (emergency.status === "Complete" && emergency.donatedPhone) {
                                 const cleanNum = normalizePhone(emergency.donatedPhone);
                                 if (cleanNum.length >= 10) {
-                                    if (!localStorage.getItem('donor_last_donate_' + cleanNum)) {
-                                        localStorage.setItem('donor_last_donate_' + cleanNum, new Date().toISOString());
-                                    }
+                                    // যদি ফায়ারবেসে রক্তদানের তারিখ সেভ না থাকে, তবে বর্তমান সময় ধরে নেওয়া হবে
+                                    const donateTime = emergency.timestamp || Date.now();
+                                    localStorage.setItem('bot_donate_timestamp_' + cleanNum, donateTime);
                                 }
                             }
 
@@ -446,7 +448,7 @@
             document.getElementById('emergencyForm').scrollIntoView({ behavior: 'smooth' });
         };
 
-        // ৩ মাসের রেস্ট্রিকশন চেক ফাংশন (ফোর্স অ্যালার্ট সহ)
+        // টেলিগ্রাম বট ও লোকাল ট্র্যাকিংয়ের মাধ্যমে ৩ মাসের ওয়ার্নিং চেক ফাংশন
         window.checkDonorAndCall = function(donorPhone) {
             if (!donorPhone) {
                 alert("মোবাইল নম্বর পাওয়া যায়নি!");
@@ -457,16 +459,18 @@
             let isRestricted = false;
             let remainingDays = 0;
 
+            // সমস্ত সংরক্ষিত রেকর্ড চেক করা হচ্ছে
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
-                if (key && key.startsWith('donor_last_donate_')) {
-                    const savedNum = key.replace('donor_last_donate_', '');
+                if (key && key.startsWith('bot_donate_timestamp_')) {
+                    const savedNum = key.replace('bot_donate_timestamp_', '');
                     if (cleanTarget === savedNum) {
-                        const lastDateStr = localStorage.getItem(key);
-                        const lastDate = new Date(lastDateStr);
-                        const now = new Date();
-                        const diffDays = (now - lastDate) / (1000 * 60 * 60 * 24);
+                        const lastDonateTime = parseInt(localStorage.getItem(key));
+                        const now = Date.now();
+                        const diffTime = now - lastDonateTime;
+                        const diffDays = diffTime / (1000 * 60 * 60 * 24);
 
+                        // ৯০ দিন বা ৩ মাসের মধ্যে হলে ওয়ার্নিং দিবে
                         if (diffDays < 90) {
                             isRestricted = true;
                             remainingDays = Math.ceil(90 - diffDays);
@@ -477,7 +481,10 @@
             }
 
             if (isRestricted) {
-                alert(`⚠️ সতর্কবার্তা!\n\nএই নম্বরের রক্তদাতা গত ৩ মাসের মধ্যে রক্তদান করেছেন। নিয়ম অনুযায়ী তার আরও প্রায় ${remainingDays} দিন পর রক্তদান করার কথা। অনুগ্রহ করে অন্য ডোনারের সাথে যোগাযোগ করুন।`);
+                // টেলিগ্রাম বোটেও রিমাইন্ডার বা ওয়ার্নিং মেসেজ পাঠিয়ে দেওয়া হবে
+                sendTelegramNotification("⚠️ *সতর্কবার্তা: ৩ মাসের মধ্যে রক্তদান নিষিদ্ধ প্রচেষ্টা*", "N/A", "N/A", "N/A", "নিয়ম অমান্য করে কল করার চেষ্টা", donorPhone, `👤 *সতর্কবার্তা:* এই ডোনার গত ৩ মাসের মধ্যে রক্তদান করেছেন। তার আরও প্রায় ${remainingDays} দিন পর রক্তদান করার কথা।`);
+                
+                alert(`⚠️ সতর্কবার্তা!\n\nএই রক্তদাতা গত ৩ মাসের মধ্যে রক্তদান করেছেন। নিয়ম অনুযায়ী তার আরও প্রায় ${remainingDays} দিন পর রক্তদান করার কথা। টেলিগ্রাম বোটেও এই সতর্কতা পাঠানো হয়েছে।`);
                 return;
             }
 
@@ -497,22 +504,24 @@
                 const donatedBy = donorName || "অজানা ডোনার";
                 const donatedPhone = donorPhone.trim();
                 const cleanPhone = normalizePhone(donatedPhone);
+                const currentTime = Date.now();
 
-                localStorage.setItem('donor_last_donate_' + cleanPhone, now.toISOString());
-                alert("সফলভাবে রক্তদানের তারিখ সেভ করা হয়েছে! এখন এই নম্বরে ৩ মাসের রেস্ট্রিকশন কার্যকর রয়েছে।");
+                // টেলিগ্রাম বট ও সিস্টেমের জন্য দাতার শেষ রক্তদানের সময় সেভ করা হলো
+                localStorage.setItem('bot_donate_timestamp_' + cleanPhone, currentTime);
 
                 db.ref('emergencies/' + id).update({ 
                     status: "Complete", 
                     donatedBy: donatedBy, 
                     donatedPhone: donatedPhone,
                     donateDate: donateDateStr, 
-                    lastNotified: Date.now() 
+                    timestamp: currentTime,
+                    lastNotified: currentTime 
                 }).then(() => {
-                    const extraInfo = `🎉 *অভিনন্দন! রক্তদান সফলভাবে সম্পন্ন হয়েছে!* 🎉\n\n` +
+                    const extraInfo = `🎉 *টেলিগ্রাম বট ট্র্যাকিং: রক্তদান সফলভাবে সম্পন্ন!* 🎉\n\n` +
                                       `👤 *রক্তদাতা:* ${donatedBy}\n` +
                                       `📞 *দাতার মোবাইল:* ${donatedPhone}\n` +
                                       `📅 *সম্পন্ন হওয়ার তারিখ:* ${donateDateStr}\n` +
-                                      `👤 *রেফারেন্স:* ${emObj.refName || 'নেই'}`;
+                                      `⚠️ *নোট:* এই নম্বরটি আগামী ৩ মাসের জন্য টেলিগ্রাম বট ও সিস্টেমে রেস্ট্রিক্টেড হিসেবে সংরক্ষিত হলো।`;
                     
                     sendTelegramNotification("✅ *বজরা ব্লাড ডোনেট ক্লাব - রক্তদান সম্পন্ন*", emObj.bloodGroup, emObj.location, emObj.amount, emObj.problem, emObj.refPhone, extraInfo);
                 });
@@ -603,7 +612,7 @@
                 card.className = 'stats-item';
                 card.innerHTML = `
                     <h3 style="margin:0 0 5px 0; color: #17a2b8;">👤 ${donorName}</h3>
-                    <p style="margin: 0; font-size: 1.1em; font-weight: bold;">🩸 মোট রক্তদান: ${stats[donorName]} ব্যাগ</p>
+                    <p style="margin: 0; font-size: 1.1em; font-weight: bold;">🏆 মোট রক্তদান: ${stats[donorName]} ব্যাগ</p>
                 `;
                 statsList.appendChild(card);
             });
