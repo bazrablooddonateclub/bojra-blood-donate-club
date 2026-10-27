@@ -293,11 +293,10 @@
                             const emergency = { id: key, ...data[key] };
                             allEmergencies.push(emergency);
 
-                            // যদি রিকোয়েস্টটি কমপ্লিট থাকে, তবে এর দাতার নম্বরটি লোকালস্টোরেজে নিশ্চিতভাবে সেভ করে রাখা হবে (৩ মাসের রেস্ট্রিকশনের জন্য)
+                            // রক্তদান সম্পন্ন হলে ডোনারের মোবাইল নম্বর লোকালস্টোরেজে সেভ হবে ৩ মাসের রেস্ট্রিকশনের জন্য
                             if (emergency.status === "Complete" && emergency.donatedPhone) {
                                 const cleanNum = emergency.donatedPhone.replace(/\D/g, '').slice(-11);
                                 if (cleanNum.length >= 10) {
-                                    // যদি অলরেডি ডেট না থাকে, তবে বর্তমান সময় বা একটি ডিফল্ট সময় সেট হবে
                                     if (!localStorage.getItem('last_donate_date_' + cleanNum)) {
                                         localStorage.setItem('last_donate_date_' + cleanNum, new Date().toISOString());
                                     }
@@ -438,18 +437,17 @@
             document.getElementById('emergencyForm').scrollIntoView({ behavior: 'smooth' });
         };
 
-        // ৩ মাসের রেস্ট্রিকশন চেক ফাংশন (মোবাইল নম্বরের শেষ ১০-১১ ডিজিট মিলিয়ে নিখুঁতভাবে চেক করবে)
-        window.checkDonorAndCall = function(targetPhone) {
-            if (!targetPhone) {
+        // শুধুমাত্র রক্তদাতার নম্বরের ক্ষেত্রে ৩ মাসের রেস্ট্রিকশন চেক করবে
+        window.checkDonorAndCall = function(donorPhone) {
+            if (!donorPhone) {
                 alert("মোবাইল নম্বর পাওয়া যায়নি!");
                 return;
             }
 
-            const cleanTarget = targetPhone.replace(/\D/g, '').slice(-11);
+            const cleanTarget = donorPhone.replace(/\D/g, '').slice(-11);
             let isRestricted = false;
             let remainingDays = 0;
 
-            // ব্রাউজারের সমস্ত লোকালস্টোরেজ স্ক্যান করে চেক করা হবে এই নম্বর বা এর সাথে মিল আছে কি না
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
                 if (key && key.startsWith('last_donate_date_')) {
@@ -474,7 +472,7 @@
                 return;
             }
 
-            window.location.href = 'tel:' + targetPhone;
+            window.location.href = 'tel:' + donorPhone;
         };
 
         window.toggleStatus = function(id, currentStatus, emObj) {
@@ -491,7 +489,7 @@
                 const donatedPhone = donorPhone.trim();
                 const cleanPhone = donatedPhone.replace(/\D/g, '').slice(-11);
 
-                // ৩ মাসের রেস্ট্রিকশনের জন্য ব্রাউজারে নম্বর দিয়ে বর্তমান সময় সেভ করা হলো
+                // দাতার মোবাইল নম্বরের বিপরীতে বর্তমান সময় সেভ করা হলো
                 localStorage.setItem('last_donate_date_' + cleanPhone, now.toISOString());
 
                 db.ref('emergencies/' + id).update({ 
@@ -626,7 +624,7 @@
                 <p style="margin: 4px 0;">📅 <strong>তারিখ ও সময়:</strong> ${em.date || ''} (${em.time || ''})</p>
                 <p style="margin: 4px 0;">🏥 <strong>স্থান:</strong> ${em.location || 'অজানা'}</p>
                 <p style="margin: 4px 0;">👤 <strong>রেফারেন্স:</strong> ${em.refName || 'নেই'}</p>
-                <button onclick="checkDonorAndCall('${em.refPhone || ''}')" class="btn-call" style="background: ${isComplete ? '#28a745' : '#c9302c'};">📞 কল করুন (${em.refPhone || 'নম্বর নেই'})</button>
+                <a href="tel:${em.refPhone || '#'}" class="btn-call" style="background: ${isComplete ? '#28a745' : '#c9302c'}; text-decoration: none;">📞 কল করুন (${em.refPhone || 'নম্বর নেই'})</a>
                 <button class="status-badge ${statusClass}" onclick="toggleStatus('${em.id}', '${status}', ${emJSON})">${statusText}</button>
                 ${instructionHTML}
                 <button class="btn-edit" onclick="editEmergency('${em.id}')">✏️ অনুরোধ এডিট করুন</button>
