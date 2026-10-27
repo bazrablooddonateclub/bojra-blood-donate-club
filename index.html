@@ -39,6 +39,7 @@
             z-index: 2;
             box-shadow: 0 4px 10px rgba(0,0,0,0.15);
             transition: all 0.3s ease;
+            cursor: pointer;
         }
         .btn-telegram-header:hover {
             background: #f0f4f8;
@@ -106,8 +107,9 @@
         <div class="blood-icon-right">🩸</div>
         <h1>বজরা ব্লাড ডোনেট ক্লাব</h1>
         <p>জরুরী প্রয়োজনে জীবন বাঁচানোই আমাদের লক্ষ্য</p>
-        <!-- অ্যাপ ও ওয়েব উভয় মাধ্যমের জন্য সুরক্ষিত টেলিগ্রাম লিংক -->
-        <a href="https://t.me/bozra_blood_club_bot" target="_blank" rel="noopener noreferrer" class="btn-telegram-header">
+        
+        <!-- টেলিগ্রাম জয়েন বাটন -->
+        <a id="telegramBtn" href="https://t.me/bozra_blood_club_bot" class="btn-telegram-header">
             ✈️ টেলিগ্রাম বটে যুক্ত হোন
         </a>
     </header>
@@ -183,7 +185,7 @@
 
         <!-- রক্তদানের পরিসংখ্যান -->
         <div class="card stats-card-box">
-            <h2 style="color: #17a2b8; border-bottom: 2px solid #17a2b8;">🏆 রক্তদানের পরিসংখ্যান ( কে কত ব্যাগ দিলেন )</h2>
+            <h2 style="color: #17a2b8; border-bottom: 2px solid #17a2b8;">🏆 রক্তদানের পরিসংখ্যান (কে কত ব্যাগ দিলেন)</h2>
             <div class="donor-list" id="donationStatsList">
                 <div class="loading">পরিসংখ্যান লোড হচ্ছে...</div>
             </div>
@@ -269,6 +271,23 @@
 
         let allDonors = [];
         let allEmergencies = [];
+
+        // অ্যাপ এবং ব্রাউজার উভয় মাধ্যমেই টেলিগ্রাম বাটন সঠিকভাবে হ্যান্ডেল করার স্ক্রিপ্ট
+        document.getElementById('telegramBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            const botUrl = "https://t.me/bozra_blood_club_bot";
+            const tgAppUrl = "tg://resolve?domain=bozra_blood_club_bot";
+
+            // প্রথমে অ্যাপের স্কিম চেষ্টা করবে, না পারলে ব্রাউজারে স্ট্যান্ডার্ড লিংকে ওপেন হবে
+            try {
+                window.location.href = tgAppUrl;
+                setTimeout(function() {
+                    window.open(botUrl, '_blank');
+                }, 500);
+            } catch (err) {
+                window.open(botUrl, '_blank');
+            }
+        });
 
         function normalizePhone(phone) {
             if (!phone) return '';
