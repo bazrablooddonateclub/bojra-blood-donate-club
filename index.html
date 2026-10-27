@@ -255,9 +255,11 @@
             return digits;
         }
 
-        // চ্যানেল বা চ্যাট আইডিতে নোটিফিকেশন পাঠানোর ফাংশন
+        // Channel ba Direct Chat ID-te message pathanor function (Loop ba auto-reply off kora hoyeche)
         function sendTelegramNotification(title, bloodGroup, location, amount, problem, refPhone, extraDetails = "") {
             const botToken = "8975147675:AAGrWXFE4-y_L7Sw55P58PL17ukfUlxHAB0";
+            
+            // Apnar personal chat id ebong channel username ekhane thakbe:
             const targets = ["8352480462", "@your_channel_username"]; 
 
             let message = title + "\n\n" +
@@ -642,6 +644,8 @@
             return card;
         }
 
+        document.getElementById('filterGroup').value = "";
+        document.getElementById('filterLocation').value = "";
         document.getElementById('filterGroup').addEventListener('change', displayDonors);
         document.getElementById('filterLocation').addEventListener('input', displayDonors);
 
