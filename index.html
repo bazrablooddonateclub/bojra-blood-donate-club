@@ -169,7 +169,7 @@
 
         <!-- রক্তদানের পরিসংখ্যান -->
         <div class="card stats-card-box">
-            <h2 style="color: #17a2b8; border-bottom: 2px solid #17a2b8;">🏆 রক্তদানের পরিসংখ্যান ( কে কত ব্যাগ দিলেন)</h2>
+            <h2 style="color: #17a2b8; border-bottom: 2px solid #17a2b8;">🏆 রক্তদানের পরিসংখ্যান (কে কত ব্যাগ দিলেন)</h2>
             <div class="donor-list" id="donationStatsList">
                 <div class="loading">পরিসংখ্যান লোড হচ্ছে...</div>
             </div>
@@ -268,16 +268,22 @@
             return digits;
         }
 
-        function sendTelegramNotification(title, bloodGroup, location, amount, problem, refPhone, extraDetails = "") {
+        // নোটিফিকেশনে তারিখ ও সময় যুক্ত করার আপডেট ফাংশন
+        function sendTelegramNotification(title, bloodGroup, location, amount, problem, refPhone, date = "", time = "", extraDetails = "") {
             const botToken = "8975147675:AAGrWXFE4-y_L7Sw55P58PL17ukfUlxHAB0";
             const targets = ["8352480462", "@bazra_blood_club"]; 
 
             let message = title + "\n\n" +
                           `🩸 *রক্তের গ্রুপ:* ${bloodGroup}\n` +
                           `🏥 *স্থান:* ${location}\n` +
-                          `📦 *পরিমাণ:* ${amount}\n` +
-                          `📋 *সমস্যা:* ${problem}\n` +
-                          `📞 *রক্ত গ্রহীতার মোবাইল:* ${refPhone}`;
+                          `📦 *পরিমাণ:* ${amount}\n`;
+
+            if (date && time) {
+                message += `📅 *রক্তদানের তারিখ ও সময়:* ${date} (${time})\n`;
+            }
+
+            message += `📋 *সমস্যা:* ${problem}\n` +
+                       `📞 *রক্ত গ্রহীতার মোবাইল:* ${refPhone}`;
 
             if (extraDetails) {
                 message += `\n\n${extraDetails}`;
@@ -329,7 +335,7 @@
                                 }
                             }
 
-                            // সময় পার হয়ে গেলে সরাসরি ফায়ারবেসে স্ট্যাটাস Expired করে দেব, যাতে আর অনুরোধ বক্সে না থাকে
+                            // সময় পার হয়ে গেলে স্বয়ংক্রিয়ভাবে Expired স্ট্যাটাস এবং টেলিগ্রাম নোটিফিকেশন পাঠাবে
                             if (emergency.status === "Pending" && emergency.date && emergency.time) {
                                 const targetDateTime = new Date(`${emergency.date}T${emergency.time}`);
                                 if (currentTime > targetDateTime.getTime()) {
@@ -339,7 +345,7 @@
                                         db.ref('emergencies/' + key).update({ expiredNotified: true });
                                         const expiredInfo = `❌ *দুঃখজনক! রক্তের অনুরোধটি মেয়াদোত্তীর্ণ বা ব্যর্থ হয়েছে!*\n\n` +
                                                             `⚠️ নির্ধারিত সময়ের মধ্যে রক্তদান সম্পন্ন করা সম্ভব হয়নি।`;
-                                        sendTelegramNotification("⌛ *বজরা ব্লাড ডোনেট ক্লাব - অনুরোধ মেয়াদোত্তীর্ণ*", emergency.bloodGroup, emergency.location, emergency.amount, emergency.problem, emergency.refPhone, expiredInfo);
+                                        sendTelegramNotification("⌛ *বজরা ব্লাড ডোনেট ক্লাব - অনুরোধ মেয়াদোত্তীর্ণ*", emergency.bloodGroup, emergency.location, emergency.amount, emergency.problem, emergency.refPhone, emergency.date, emergency.time, expiredInfo);
                                     }
                                 }
                             }
@@ -349,7 +355,7 @@
                                 if (currentTime - lastNotified >= sixHours) {
                                     sendTelegramNotification(
                                         "⏰ *জরুরী রক্তের রিমাইন্ডার (৬ ঘণ্টা পর)*",
-                                        emergency.bloodGroup, emergency.location, emergency.amount, emergency.problem, emergency.refPhone
+                                        emergency.bloodGroup, emergency.location, emergency.amount, emergency.problem, emergency.refPhone, emergency.date, emergency.time
                                     );
                                     db.ref('emergencies/' + key).update({ lastNotified: currentTime });
                                 }
@@ -411,12 +417,14 @@
             const amt = document.getElementById('emAmount').value;
             const prob = document.getElementById('emProblem').value;
             const rPhone = document.getElementById('emRefPhone').value;
+            const dateVal = document.getElementById('emDate').value;
+            const timeVal = document.getElementById('emTime').value;
             const currentTime = Date.now();
 
             const emData = {
                 problem: prob, bloodGroup: bg, amount: amt,
-                date: document.getElementById('emDate').value,
-                time: document.getElementById('emTime').value,
+                date: dateVal,
+                time: timeVal,
                 location: loc, refName: document.getElementById('emRefName').value,
                 refPhone: rPhone, status: "Pending", expiredNotified: false, timestamp: currentTime, lastNotified: currentTime
             };
@@ -430,7 +438,7 @@
             } else {
                 db.ref('emergencies').push(emData)
                     .then(() => {
-                        sendTelegramNotification("🚨 *জরুরী রক্তের অনুরোধ!*", bg, loc, amt, prob, rPhone);
+                        sendTelegramNotification("🚨 *জরুরী রক্তের অনুরোধ!*", bg, loc, amt, prob, rPhone, dateVal, timeVal);
                         alert("জরুরী অনুরোধ প্রকাশ করা হয়েছে!");
                         resetEmergencyForm();
                     });
@@ -494,7 +502,7 @@
                                       `📅 *সম্পন্ন হওয়ার তারিখ:* ${donateDateStr}\n` +
                                       `👤 *রেফারেন্স:* ${emObj.refName || 'নেই'}`;
                     
-                    sendTelegramNotification("✅ *বজরা ব্লাড ডোনেট ক্লাব - রক্তদান সম্পন্ন*", emObj.bloodGroup, emObj.location, emObj.amount, emObj.problem, emObj.refPhone, extraInfo);
+                    sendTelegramNotification("✅ *বজরা ব্লাড ডোনেট ক্লাব - রক্তদান সম্পন্ন*", emObj.bloodGroup, emObj.location, emObj.amount, emObj.problem, emObj.refPhone, emObj.date, emObj.time, extraInfo);
                 });
             } else {
                 db.ref('emergencies/' + id).update({ 
@@ -553,15 +561,11 @@
             const expiredList = [];
 
             allEmergencies.forEach(em => {
-                // স্ট্যাটাস যদি Complete হয় তবে শুধুমাত্র সম্পন্ন বক্সে যাবে
                 if (em.status === "Complete") {
                     completedList.push(em);
-                } 
-                // স্ট্যাটাস যদি Expired হয় অথবা সময় পার হয়ে গিয়ে থাকে তবে মেয়াদোত্তীর্ণ বক্সে যাবে
-                else if (em.status === "Expired") {
+                } else if (em.status === "Expired") {
                     expiredList.push(em);
-                } 
-                else {
+                } else {
                     if (em.date && em.time) {
                         const targetDateTime = new Date(`${em.date}T${em.time}`);
                         if (now > targetDateTime) {
