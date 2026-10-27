@@ -156,7 +156,7 @@
 
         <!-- রক্তদানের পরিসংখ্যান -->
         <div class="card stats-card-box">
-            <h2 style="color: #17a2b8; border-bottom: 2px solid #17a2b8;">🏆 রক্তদানের পরিসংখ্যান ( কে কত ব্যাগ দিলেন )</h2>
+            <h2 style="color: #17a2b8; border-bottom: 2px solid #17a2b8;">🏆 রক্তদানের পরিসংখ্যান (কে কত ব্যাগ দিলেন)</h2>
             <div class="donor-list" id="donationStatsList">
                 <div class="loading">পরিসংখ্যান লোড হচ্ছে...</div>
             </div>
@@ -427,8 +427,11 @@
             document.getElementById('emergencyForm').scrollIntoView({ behavior: 'smooth' });
         };
 
+        // ৩ মাসের রেস্ট্রিকশন চেক ফাংশন (মোবাইল নম্বর ক্লিন করে চেক করবে)
         window.checkDonorAndCall = function(donorPhone) {
-            const lastDateStr = localStorage.getItem('last_donate_date_' + donorPhone);
+            const cleanPhone = donorPhone ? donorPhone.replace(/\s+/g, '') : '';
+            const lastDateStr = localStorage.getItem('last_donate_date_' + cleanPhone);
+            
             if (lastDateStr) {
                 const lastDate = new Date(lastDateStr);
                 const now = new Date();
@@ -456,8 +459,10 @@
                 const donateDateStr = now.toLocaleDateString('bn-BD');
                 const donatedBy = donorName || "অজানা ডোনার";
                 const donatedPhone = donorPhone || "নম্বর নেই";
+                const cleanPhone = donatedPhone.replace(/\s+/g, '');
 
-                localStorage.setItem('last_donate_date_' + donatedPhone, now.toISOString());
+                // ৩ মাসের ট্র্যাকিংয়ের জন্য ব্রাউজারে নম্বর দিয়ে তারিখ সেভ করা হলো
+                localStorage.setItem('last_donate_date_' + cleanPhone, now.toISOString());
 
                 db.ref('emergencies/' + id).update({ 
                     status: "Complete", 
@@ -591,7 +596,7 @@
                 <p style="margin: 4px 0;">📅 <strong>তারিখ ও সময়:</strong> ${em.date || ''} (${em.time || ''})</p>
                 <p style="margin: 4px 0;">🏥 <strong>স্থান:</strong> ${em.location || 'অজানা'}</p>
                 <p style="margin: 4px 0;">👤 <strong>রেফারেন্স:</strong> ${em.refName || 'নেই'}</p>
-                <a href="tel:${em.refPhone || '#'}" class="btn-call" style="background: ${isComplete ? '#28a745' : '#c9302c'}; text-decoration: none;">📞 কল করুন (${em.refPhone || 'নম্বর নেই'})</a>
+                <button onclick="checkDonorAndCall('${em.refPhone || ''}')" class="btn-call" style="background: ${isComplete ? '#28a745' : '#c9302c'};">📞 কল করুন (${em.refPhone || 'নম্বর নেই'})</button>
                 <button class="status-badge ${statusClass}" onclick="toggleStatus('${em.id}', '${status}', ${emJSON})">${statusText}</button>
                 ${instructionHTML}
                 <button class="btn-edit" onclick="editEmergency('${em.id}')">✏️ অনুরোধ এডিট করুন</button>
