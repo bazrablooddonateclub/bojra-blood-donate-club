@@ -63,12 +63,9 @@
         .blood-badge { background: #d9534f; color: white; padding: 4px 10px; border-radius: 20px; font-weight: bold; font-size: 0.9em; position: absolute; top: 15px; right: 15px; }
         .btn-call { display: block; text-align: center; background: #28a745; color: white; text-decoration: none; padding: 8px; border-radius: 5px; margin-top: 10px; font-weight: bold; }
         
-        /* এডিট ও ডিলিট বাটনের নতুন স্টাইল */
-        .action-btns { display: flex; gap: 8px; margin-top: 10px; }
-        .btn-edit { background: #007bff; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 0.85em; flex: 1; }
-        .btn-delete { background: #dc3545; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 0.85em; flex: 1; }
+        /* শুধু এডিট বাটনের স্টাইল */
+        .btn-edit { background: #007bff; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 0.85em; width: 100%; margin-top: 10px; font-weight: bold; }
         .btn-edit:hover { background: #0056b3; }
-        .btn-delete:hover { background: #a71d2a; }
 
         .status-badge { display: inline-block; padding: 8px 10px; border-radius: 4px; font-weight: bold; font-size: 0.9em; margin-top: 8px; text-align: center; width: 100%; cursor: pointer; border: none; }
         .status-pending { background: #ffc107; color: #333; }
@@ -398,7 +395,7 @@
             document.getElementById('emSubmitBtn').disabled = false;
         }
 
-        // ডোনার এডিট ও ডিলিট
+        // ডোনার এডিট ফাংশন
         window.editDonor = function(id) {
             const donor = allDonors.find(d => d.id === id);
             if (!donor) return;
@@ -414,13 +411,7 @@
             document.getElementById('donorFormCard').scrollIntoView({ behavior: 'smooth' });
         };
 
-        window.deleteDonor = function(id) {
-            if (confirm("আপনি কি নিশ্চিত যে এই ডোনারের তথ্য মুছে ফেলতে চান?")) {
-                db.ref('donors/' + id).remove().then(() => alert("মুছে ফেলা হয়েছে!"));
-            }
-        };
-
-        // জরুরী অনুরোধ এডিট ও ডিলিট
+        // জরুরী অনুরোধ এডিট ফাংশন
         window.editEmergency = function(id) {
             const em = allEmergencies.find(e => e.id === id);
             if (!em) return;
@@ -436,12 +427,6 @@
 
             document.getElementById('emSubmitBtn').innerText = "আপডেট করুন";
             document.getElementById('emergencyForm').scrollIntoView({ behavior: 'smooth' });
-        };
-
-        window.deleteEmergency = function(id) {
-            if (confirm("আপনি কি নিশ্চিত যে এই অনুরোধটি মুছে ফেলতে চান?")) {
-                db.ref('emergencies/' + id).remove().then(() => alert("মুছে ফেলা হয়েছে!"));
-            }
         };
 
         window.toggleStatus = function(id, currentStatus, emObj) {
@@ -492,10 +477,7 @@
                     <p style="margin: 5px 0;">🎂 <strong>বয়স:</strong> ${donor.age ? donor.age + ' বছর' : 'অজানা'}</p>
                     <p style="margin: 5px 0;">📍 <strong>ঠিকানা:</strong> ${donor.location || 'অজানা'}</p>
                     <a href="tel:${donor.phone || '#'}" class="btn-call">📞 কল করুন (${donor.phone || 'নম্বর নেই'})</a>
-                    <div class="action-btns">
-                        <button class="btn-edit" onclick="editDonor('${donor.id}')">✏️ এডিট</button>
-                        <button class="btn-delete" onclick="deleteDonor('${donor.id}')">🗑️ ডিলিট</button>
-                    </div>
+                    <button class="btn-edit" onclick="editDonor('${donor.id}')">✏️ তথ্য এডিট করুন</button>
                 `;
                 donorList.appendChild(card);
             });
@@ -577,10 +559,7 @@
                 <a href="tel:${em.refPhone || '#'}" class="btn-call" style="background: ${isComplete ? '#28a745' : '#c9302c'};">📞 কল করুন (${em.refPhone || 'নম্বর নেই'})</a>
                 <button class="status-badge ${statusClass}" onclick="toggleStatus('${em.id}', '${status}', ${emJSON})">${statusText}</button>
                 ${instructionHTML}
-                <div class="action-btns">
-                    <button class="btn-edit" onclick="editEmergency('${em.id}')">✏️ এডিট</button>
-                    <button class="btn-delete" onclick="deleteEmergency('${em.id}')">🗑️ ডিলিট</button>
-                </div>
+                <button class="btn-edit" onclick="editEmergency('${em.id}')">✏️ অনুরোধ এডিট করুন</button>
             `;
             return card;
         }
