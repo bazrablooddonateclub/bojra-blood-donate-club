@@ -182,11 +182,11 @@
                 <input type="hidden" id="donorId">
                 <div class="form-group">
                     <label>রক্তদাতার নাম:</label>
-                    <input type="text" id="name" required placeholder="যেমন: সৈয়দ ইমরান হোসেন নাফিস">
+                    <input type="text" id="name" required placeholder="เช่น: Syed Imran Hossain Nafis (ইংরেজিতে লিখুন)">
                 </div>
                 <div class="form-group">
                     <label>বয়স:</label>
-                    <input type="number" id="age" required placeholder="যেমন: ২৫" min="18" max="65">
+                    <input type="number" id="age" required placeholder="25" min="18" max="65">
                 </div>
                 <div class="form-group">
                     <label>রক্তের গ্রুপ:</label>
@@ -208,7 +208,7 @@
                 </div>
                 <div class="form-group">
                     <label>ঠিকানা/উপজেলা:</label>
-                    <input type="text" id="location" required placeholder="যেমন: বজরা, নোয়াখালী">
+                    <input type="text" id="location" required placeholder="Bajra, Noakhali (ইংরেজিতে লিখুন)">
                 </div>
                 <button type="submit" id="submitBtn">ডোনার সেভ করুন</button>
             </form>
@@ -256,9 +256,19 @@
         let allDonors = [];
         let allEmergencies = [];
 
+        // বাংলা ও ইংরেজি উভয় সংখ্যাকে স্ট্যান্ডার্ড ইংরেজি সংখ্যায় এবং সঠিক ফরম্যাটে রূপান্তর করার ফাংশন
         function normalizePhone(phone) {
             if (!phone) return '';
-            let digits = phone.replace(/\D/g, '');
+            
+            // বাংলা সংখ্যাগুলোকে ইংরেজিতে রূপান্তর
+            const bengaliToEnglish = {
+                '০': '0', '১': '1', '২': '2', '৩': '3', '৪': '4',
+                '৫': '5', '৬': '6', '৭': '7', '৮': '8', '৯': '9'
+            };
+            
+            let converted = phone.toString().replace(/[০-৯]/g, match => bengaliToEnglish[match]);
+            let digits = converted.replace(/\D/g, '');
+            
             if (digits.startsWith('880') && digits.length > 11) {
                 digits = digits.substring(2);
             }
@@ -495,8 +505,7 @@
             window.location.href = 'tel:' + donorPhone;
         };
 
-        // ২. জরুরী রক্তের অনুরোধ বক্স থেকে কল করলে রক্তদাতার নাম ও ফোন নম্বর নিয়ে ৩ মাসের চেকিং হবে, 
-        // কিন্তু ডায়াল হবে রক্তগ্রহীতার মোবাইল নম্বর (refPhone)-এ।
+        // ২. জরুরী রক্তের অনুরোধ বক্স থেকে কল করলে নাম ও ফোন নম্বর নিয়ে ৩ মাসের চেকিং হবে (বাংলা/ইংরেজি নম্বর কনভার্ট করে ম্যাচ করা হবে)
         window.checkEmergencyDonorAndCall = function(refPhone) {
             const donorName = prompt("রক্তদাতার পূর্ণ নাম লিখুন:", "");
             if (donorName === null || donorName.trim() === "") return;
@@ -504,6 +513,7 @@
             const inputPhone = prompt("রক্তদাতার মোবাইল নম্বরটি লিখুন:", "01XXXXXXXXX");
             if (inputPhone === null || inputPhone.trim() === "") return;
 
+            // ইনপুট দেওয়া নম্বরটিকে নরমালাইজ করে ইংরেজি স্ট্যান্ডার্ড ফরম্যাটে আনা হলো (বাংলা বা ইংরেজি যাই হোক না কেন)
             const cleanInputPhone = normalizePhone(inputPhone);
             const lastDonateKey = 'donor_last_donate_' + cleanInputPhone;
             const lastDonateDateStr = localStorage.getItem(lastDonateKey);
@@ -546,6 +556,8 @@
                 const donateDateStr = now.toLocaleDateString('bn-BD');
                 const donatedBy = donorName || "অজানা ডোনার";
                 const donatedPhone = donorPhone.trim();
+                
+                // এখানেও বাংলা নম্বর ইনপুট দিলেও তা ইংরেজিতে কনভার্ট হয়ে লোকাল স্টোরেজে সেভ হবে
                 const cleanPhone = normalizePhone(donatedPhone);
 
                 localStorage.setItem('donor_last_donate_' + cleanPhone, now.toISOString());
