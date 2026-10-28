@@ -169,7 +169,7 @@
 
         <!-- রক্তদানের পরিসংখ্যান -->
         <div class="card stats-card-box">
-            <h2 style="color: #17a2b8; border-bottom: 2px solid #17a2b8;">🏆 রক্তদানের পরিসংখ্যান ( কে কত ব্যাগ দিলেন )</h2>
+            <h2 style="color: #17a2b8; border-bottom: 2px solid #17a2b8;">🏆 রক্তদানের পরিসংখ্যান (কে কত ব্যাগ দিলেন)</h2>
             <div class="donor-list" id="donationStatsList">
                 <div class="loading">পরিসংখ্যান লোড হচ্ছে...</div>
             </div>
@@ -256,28 +256,24 @@
         let allDonors = [];
         let allEmergencies = [];
 
-        // সুপার স্ট্রং ফোন নম্বর নরমালাইজেশন (বাংলা/ইংরেজি যেকোনো ফরম্যাট, স্পেস, হাইফেন ও কান্ট্রি কোড হ্যান্ডেল করবে)
         function normalizePhone(phone) {
             if (!phone) return '';
-            
-            // বাংলা সংখ্যাগুলোকে ইংরেজিতে রূপান্তর
             const bengaliToEnglish = {
                 '০': '0', '১': '1', '২': '2', '৩': '3', '৪': '4',
                 '৫': '5', '৬': '6', '৭': '7', '৮': '8', '৯': '9'
             };
-            
             let converted = phone.toString().replace(/[০-৯]/g, match => bengaliToEnglish[match]);
-            let digits = converted.replace(/\D/g, ''); // শুধু সংখ্যাগুলো রাখবে
-            
+            let digits = converted.replace(/\D/g, '');
             if (digits.startsWith('880') && digits.length > 11) {
-                digits = digits.substring(2); // 880 বাদ দিয়ে মূল ১১ ডিজিট রাখবে
+                digits = digits.substring(2);
             }
             if (digits.length > 11) {
-                digits = digits.slice(-11); // শেষের ১১ ডিজিট নেবে
+                digits = digits.slice(-11);
             }
             return digits;
         }
 
+        // সাধারণ টেলিগ্রাম নোটিফিকেশন ফাংশন (জরুরী অনুরোধ ও অন্যান্য বিষয়ের জন্য)
         function sendTelegramNotification(title, bloodGroup, location, amount, problem, refPhone, date = "", time = "", extraDetails = "") {
             const botToken = "8975147675:AAGrWXFE4-y_L7Sw55P58PL17ukfUlxHAB0";
             const targets = ["8352480462", "@bazra_blood_club"]; 
@@ -297,6 +293,29 @@
             if (extraDetails) {
                 message += `\n\n${extraDetails}`;
             }
+
+            targets.forEach(targetId => {
+                fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ chat_id: targetId, text: message, parse_mode: "Markdown" })
+                }).catch(err => console.error("Telegram Alert Error:", err));
+            });
+        }
+
+        // বিশেষভাবে নতুন ডোনার রেজিস্ট্রেশনের জন্য ক্লিন ও আলাদা টেলিগ্রাম নোটিফিকেশন ফাংশন
+        function sendDonorTelegramNotification(donorName, bloodGroup, age, phone, location) {
+            const botToken = "8975147675:AAGrWXFE4-y_L7Sw55P58PL17ukfUlxHAB0";
+            const targets = ["8352480462", "@bazra_blood_club"]; 
+
+            let message = `🎉 *অভিনন্দন! নতুন রক্তদাতা যুক্ত হয়েছেন!* 🎉\n\n` +
+                          `👤 *নাম:* ${donorName}\n` +
+                          `🩸 *রক্তের গ্রুপ:* ${bloodGroup}\n` +
+                          `🎂 *বয়স:* ${age} বছর\n` +
+                          `📍 *ঠিকানা/উপজেলা:* ${location}\n` +
+                          `📞 *মোবাইল নম্বর:* ${phone}\n\n` +
+                          `বজরা ব্লাড ডোনেট ক্লাবে একজন স্বেচ্ছাসেবী রক্তদাতা হিসেবে যুক্ত হওয়ার জন্য আপনাকে আন্তরিক ধন্যবাদ ও অভিনন্দন, *${donorName}* ভাই/বোন! ❤️\n` +
+                          `আপনার এই মহান উদ্যোগ ইনশাআল্লাহ অনেক রোগীর জীবন বাঁচাতে সাহায্য করবে। 🩸✨`;
 
             targets.forEach(targetId => {
                 fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
@@ -386,10 +405,11 @@
             const donorBloodGroup = document.getElementById('bloodGroup').value;
             const donorLocation = document.getElementById('location').value;
             const donorPhone = document.getElementById('phone').value;
+            const donorAge = document.getElementById('age').value;
 
             const donorData = {
                 name: donorName,
-                age: document.getElementById('age').value,
+                age: donorAge,
                 bloodGroup: donorBloodGroup,
                 phone: donorPhone,
                 location: donorLocation,
@@ -405,23 +425,8 @@
             } else {
                 db.ref('donors').push(donorData)
                     .then(() => {
-                        const welcomeTitle = `🎉 *অভিনন্দন! নতুন রক্তদাতা যুক্ত হয়েছেন!* 🎉`;
-                        const welcomeMsg = `বজরা ব্লাড ডোনেট ক্লাবে একজন স্বেচ্ছাসেবী রক্তদাতা হিসেবে যুক্ত হওয়ার জন্য আপনাকে আন্তরিক ধন্যবাদ ও অভিনন্দন, *${donorName}* ভাই/বোন! ❤️\n\n` +
-                                           `🩸 *রক্তের গ্রুপ:* ${donorBloodGroup}\n` +
-                                           `📍 *ঠিকানা/উপজেলা:* ${donorLocation}\n\n` +
-                                           `আপনার এই মহান উদ্যোগ ইনশাআল্লাহ অনেক রোগীর জীবন বাঁচাতে সাহায্য করবে। 🩸✨`;
-
-                        sendTelegramNotification(
-                            welcomeTitle, 
-                            donorBloodGroup, 
-                            donorLocation, 
-                            "১ জন রক্তদাতা", 
-                            "নতুন ডোনার রেজিস্ট্রেশন", 
-                            donorPhone, 
-                            new Date().toLocaleDateString('bn-BD'), 
-                            new Date().toLocaleTimeString('bn-BD'), 
-                            welcomeMsg
-                        );
+                        // নতুন ডোনারের জন্য ডেডিকেটেড পরিষ্কার অভিনন্দন মেসেজ পাঠানো হচ্ছে
+                        sendDonorTelegramNotification(donorName, donorBloodGroup, donorAge, donorPhone, donorLocation);
 
                         alert("রক্তদাতার তথ্য সফলভাবে সেভ হয়েছে!");
                         resetDonorForm();
@@ -513,10 +518,8 @@
             const inputPhone = prompt("রক্তদাতার মোবাইল নম্বরটি লিখুন:", "01XXXXXXXXX");
             if (inputPhone === null || inputPhone.trim() === "") return;
 
-            // নম্বরটিকে স্ট্যান্ডার্ড ফরম্যাটে কনভার্ট করা হচ্ছে যাতে বাংলা বা ইংরেজি লেখার ঝামেলা না থাকে
             const cleanInputPhone = normalizePhone(inputPhone);
             
-            // লোকাল স্টোরেজে চেক করার জন্য সমস্ত সেভ করা কীর সাথে মিল করে দেখা হবে
             let lastDonateDateStr = null;
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
@@ -551,7 +554,6 @@
                 }
             }
 
-            // ওয়ার্নিং চেকিং শেষ হওয়ার পর কল যাবে রক্ত গ্রহীতার নম্বরে (refPhone)
             window.location.href = 'tel:' + refPhone;
         };
 
@@ -568,7 +570,6 @@
                 const donatedBy = donorName || "অজানা ডোনার";
                 const donatedPhone = donorPhone.trim();
                 
-                // নরমালাইজড নম্বর দিয়ে লোকাল স্টোরেজে সেভ করা হলো যাতে বাংলা/ইংরেজি মিলে যায়
                 const cleanPhone = normalizePhone(donatedPhone);
                 localStorage.setItem('donor_last_donate_' + cleanPhone, now.toISOString());
 
