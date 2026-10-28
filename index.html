@@ -185,8 +185,8 @@
                     <input type="text" id="name" required placeholder="যেমন: সৈয়দ ইমরান হোসেন নাফিস">
                 </div>
                 <div class="form-group">
-                    <label>বয়স:</label>
-                    <input type="number" id="age" required placeholder="যেমন: ২৫" min="18" max="65">
+                    <label>বয়স (ঐচ্ছিক):</label>
+                    <input type="number" id="age" placeholder="যেমন: ২৫" min="10" max="90">
                 </div>
                 <div class="form-group">
                     <label>রক্তের গ্রুপ:</label>
@@ -273,7 +273,7 @@
             return digits;
         }
 
-        // ১. শুধুমাত্র জরুরী রক্তের অনুরোধের জন্য টেলিগ্রাম নোটিফিকেশন ফাংশন
+        // জরুরী রক্তের অনুরোধের জন্য টেলিগ্রাম নোটিফিকেশন
         function sendEmergencyTelegramNotification(title, bloodGroup, location, amount, problem, refPhone, date = "", time = "", extraDetails = "") {
             const botToken = "8975147675:AAGrWXFE4-y_L7Sw55P58PL17ukfUlxHAB0";
             const targets = ["8352480462", "@bazra_blood_club"]; 
@@ -303,19 +303,23 @@
             });
         }
 
-        // ২. নতুন ডোনার রেজিস্ট্রেশনের জন্য নির্দিষ্ট অভিনন্দন নোটিফিকেশন ফাংশন (চিহ্নিত অংশগুলো সম্পূর্ণরূপে বাদ দেওয়া হয়েছে)
+        // নতুন ডোনার রেজিস্ট্রেশনের জন্য পরিষ্কার অভিনন্দন নোটিফিকেশন (বয়স অপশনাল হ্যান্ডেল করা হয়েছে)
         function sendDonorTelegramNotification(donorName, bloodGroup, age, phone, location) {
             const botToken = "8975147675:AAGrWXFE4-y_L7Sw55P58PL17ukfUlxHAB0";
             const targets = ["8352480462", "@bazra_blood_club"]; 
 
-            let message = `🎉 *অভিনন্দন! নতুন রক্তদাতা যুক্ত হয়েছেন!* 🎉\n\n` +
+            let message = `🎉 *অভিনন্দন! ডোনার লিস্টে নতুন ব্লাড ডোনার যুক্ত হয়েছেন!* 🎉\n\n` +
                           `👤 *নাম:* ${donorName}\n` +
-                          `🩸 *রক্তের গ্রুপ:* ${bloodGroup}\n` +
-                          `🎂 *বয়স:* ${age} বছর\n` +
-                          `📍 *ঠিকানা/উপজেলা:* ${location}\n` +
-                          `📞 *মোবাইল নম্বর:* ${phone}\n\n` +
-                          `বজরা ব্লাড ডোনেট ক্লাবে একজন স্বেচ্ছাসেবী রক্তদাতা হিসেবে যুক্ত হওয়ার জন্য আপনাকে আন্তরিক ধন্যবাদ ও অভিনন্দন, *${donorName}* ভাই/বোন! ❤️\n` +
-                          `আপনার এই মহান উদ্যোগ ইনশাআল্লাহ অনেক রোগীর জীবন বাঁচাতে সাহায্য করবে। 🩸✨`;
+                          `🩸 *রক্তের গ্রুপ:* ${bloodGroup}\n`;
+            
+            if (age && age.trim() !== "") {
+                message += `🎂 *বয়স:* ${age} বছর\n`;
+            }
+
+            message += `📍 *ঠিকানা/উপজেলা:* ${location}\n` +
+                       `📞 *মোবাইল নম্বর:* ${phone}\n\n` +
+                       `বজরা ব্লাড ডোনেট ক্লাবে একজন স্বেচ্ছাসেবী রক্তদাতা হিসেবে যুক্ত হওয়ার জন্য আপনাকে আন্তরিক ধন্যবাদ ও অভিনন্দন, *${donorName}* ভাই/বোন! ❤️\n` +
+                       `আপনার এই মহান উদ্যোগ ইনশাআল্লাহ অনেক রোগীর জীবন বাঁচাতে সাহায্য করবে। 🩸✨`;
 
             targets.forEach(targetId => {
                 fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
@@ -405,7 +409,7 @@
             const donorBloodGroup = document.getElementById('bloodGroup').value;
             const donorLocation = document.getElementById('location').value;
             const donorPhone = document.getElementById('phone').value;
-            const donorAge = document.getElementById('age').value;
+            const donorAge = document.getElementById('age').value || '';
 
             const donorData = {
                 name: donorName,
@@ -425,9 +429,7 @@
             } else {
                 db.ref('donors').push(donorData)
                     .then(() => {
-                        // নতুন ডোনারের জন্য ক্লিন অভিনন্দন মেসেজ কল করা হলো (অতিরিক্ত ফিল্ড ছাড়া)
                         sendDonorTelegramNotification(donorName, donorBloodGroup, donorAge, donorPhone, donorLocation);
-
                         alert("রক্তদাতার তথ্য সফলভাবে সেভ হয়েছে!");
                         resetDonorForm();
                     });
@@ -510,7 +512,7 @@
             window.location.href = 'tel:' + donorPhone;
         };
 
-        // ২. জরুরী রক্তের অনুরোধ বক্স থেকে কল করলে ৩ মাসের চেকিং (বাংলা/ইংরেজি ফরম্যাট ম্যাচ করবে)
+        // ২. জরুরী রক্তের অনুরোধ বক্স থেকে কল করলে ৩ মাসের চেকিং
         window.checkEmergencyDonorAndCall = function(refPhone) {
             const donorName = prompt("রক্তদাতার পূর্ণ নাম লিখুন:", "");
             if (donorName === null || donorName.trim() === "") return;
@@ -619,10 +621,13 @@
             filtered.reverse().forEach(donor => {
                 const card = document.createElement('div');
                 card.className = 'donor-card';
+                
+                let ageHTML = donor.age ? `<p style="margin: 5px 0;">🎂 <strong>বয়স:</strong> ${donor.age} বছর</p>` : '';
+
                 card.innerHTML = `
                     <span class="blood-badge">${donor.bloodGroup || 'N/A'}</span>
                     <h3 style="margin:0 0 10px 0;">${donor.name || 'নাম নেই'}</h3>
-                    <p style="margin: 5px 0;">🎂 <strong>বয়স:</strong> ${donor.age ? donor.age + ' বছর' : 'অজানা'}</p>
+                    ${ageHTML}
                     <p style="margin: 5px 0;">📍 <strong>ঠিকানা:</strong> ${donor.location || 'অজানা'}</p>
                     <button onclick="checkDonorAndCall('${donor.phone || ''}')" class="btn-call">📞 কল করুন (${donor.phone || 'নম্বর নেই'})</button>
                 `;
