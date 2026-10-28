@@ -101,3 +101,669 @@
                     <label>রোগীর সমস্যা:</label>
                     <input type="text" id="emProblem" required placeholder="যেমন: অপারেশন / থ্যালাসেমিয়া">
                 </div>
+                <div class="form-group">
+                    <label>রক্তের গ্রুপ:</label>
+                    <select id="emBloodGroup" required>
+                        <option value="">গ্রুপ নির্বাচন করুন</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>রক্তের পরিমাণ:</label>
+                    <input type="text" id="emAmount" required placeholder="যেমন: ২ ব্যাগ">
+                </div>
+                <div class="form-group">
+                    <label>রক্তদানের তারিখ:</label>
+                    <input type="date" id="emDate" required>
+                </div>
+                <div class="form-group">
+                    <label>রক্তদানের সময়:</label>
+                    <input type="time" id="emTime" required>
+                </div>
+                <div class="form-group">
+                    <label>রক্তপ্রদানের স্থান:</label>
+                    <input type="text" id="emLocation" required placeholder="যেমন: বজরা হসপিটাল, নোয়াখালী">
+                </div>
+                <div class="form-group">
+                    <label>রেফারেন্সের নাম:</label>
+                    <input type="text" id="emRefName" required placeholder="যেমন: নাফিজ, বারাহিনগর">
+                </div>
+                <div class="form-group">
+                    <label>রক্ত গ্রহীতার মোবাইল নম্বর:</label>
+                    <input type="tel" id="emRefPhone" required placeholder="01700000000">
+                </div>
+                <button type="submit" id="emSubmitBtn" style="background: #c9302c;">জরুরী অনুরোধ প্রকাশ করুন</button>
+            </form>
+        </div>
+
+        <!-- জরুরী রক্তের অনুরোধের তালিকা -->
+        <div class="card">
+            <h2>🚨 জরুরী রক্তের অনুরোধসমূহ</h2>
+            <div class="donor-list" id="emergencyList">
+                <div class="loading">জরুরী ডেটা লোড হচ্ছে...</div>
+            </div>
+        </div>
+
+        <!-- সম্পন্ন হওয়া রক্তের অনুরোধের তালিকা -->
+        <div class="card completed-card-box">
+            <h2 style="color: #28a745; border-bottom: 2px solid #28a745;">✅ সম্পন্ন হওয়া রক্তের অনুরোধসমূহ</h2>
+            <div class="donor-list" id="completedEmergencyList">
+                <div class="loading">কোনো সম্পন্ন হওয়া অনুরোধ নেই...</div>
+            </div>
+        </div>
+
+        <!-- মেয়াদোত্তীর্ণ বা অসমাপ্ত রক্তের অনুরোধের তালিকা -->
+        <div class="card expired-card-box">
+            <h2 style="color: #6c757d; border-bottom: 2px solid #6c757d;">⌛ মেয়াদোত্তীর্ণ বা রক্ত প্রদান সম্ভব হয়নি</h2>
+            <div class="donor-list" id="expiredEmergencyList">
+                <div class="loading">কোনো মেয়াদোত্তীর্ণ অনুরোধ নেই...</div>
+            </div>
+        </div>
+
+        <!-- রক্তদানের পরিসংখ্যান -->
+        <div class="card stats-card-box">
+            <h2 style="color: #17a2b8; border-bottom: 2px solid #17a2b8;">🏆 রক্তদানের পরিসংখ্যান (কে কত ব্যাগ দিলেন)</h2>
+            <div class="donor-list" id="donationStatsList">
+                <div class="loading">পরিসংখ্যান লোড হচ্ছে...</div>
+            </div>
+        </div>
+
+        <!-- নতুন ডোনার যুক্ত করার ফর্ম -->
+        <div class="card" id="donorFormCard">
+            <h2 id="donorFormTitle">নতুন রক্তদাতা যুক্ত করুন</h2>
+            <form id="donorForm">
+                <input type="hidden" id="donorId">
+                <div class="form-group">
+                    <label>রক্তদাতার নাম:</label>
+                    <input type="text" id="name" required placeholder="যেমন: সৈয়দ ইমরান হোসেন নাফিস">
+                </div>
+                <div class="form-group">
+                    <label>বয়স:</label>
+                    <input type="number" id="age" required placeholder="যেমন: ২৫" min="18" max="65">
+                </div>
+                <div class="form-group">
+                    <label>রক্তের গ্রুপ:</label>
+                    <select id="bloodGroup" required>
+                        <option value="">গ্রুপ নির্বাচন করুন</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>ফোন নম্বর:</label>
+                    <input type="tel" id="phone" required placeholder="01700000000">
+                </div>
+                <div class="form-group">
+                    <label>ঠিকানা/উপজেলা:</label>
+                    <input type="text" id="location" required placeholder="যেমন: বজরা, নোয়াখালী">
+                </div>
+                <button type="submit" id="submitBtn">ডোনার সেভ করুন</button>
+            </form>
+        </div>
+
+        <!-- ডোনার খোঁজার অংশ -->
+        <div class="card">
+            <h2>রক্তদাতার তালিকা</h2>
+            <div class="search-box">
+                <select id="filterGroup">
+                    <option value="">সকল গ্রুপের রক্ত</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                </select>
+                <input type="text" id="filterLocation" placeholder="এلاকা দিয়ে খুঁজুন...">
+            </div>
+
+            <div class="donor-list" id="donorList">
+                <div class="loading">ডেটা লোড হচ্ছে...</div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <p>&copy; বজরা ব্লাড ডোনেট ক্লাব - সর্বস্বত্ব সংরক্ষিত</p>
+    </footer>
+
+    <script>
+        const firebaseConfig = {
+            databaseURL: "https://bazra-blood-donate-club-web-default-rtdb.asia-southeast1.firebasedatabase.app"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.database();
+
+        let allDonors = [];
+        let allEmergencies = [];
+
+        function normalizePhone(phone) {
+            if (!phone) return '';
+            const bengaliToEnglish = {
+                '০': '0', '১': '1', '২': '2', '৩': '3', '৪': '4',
+                '৫': '5', '৬': '6', '৭': '7', '৮': '8', '৯': '9'
+            };
+            let converted = phone.toString().replace(/[০-৯]/g, match => bengaliToEnglish[match]);
+            let digits = converted.replace(/\D/g, '');
+            if (digits.startsWith('880') && digits.length > 11) {
+                digits = digits.substring(2);
+            }
+            if (digits.length > 11) {
+                digits = digits.slice(-11);
+            }
+            return digits;
+        }
+
+        // ১. শুধুমাত্র জরুরী রক্তের অনুরোধের জন্য টেলিগ্রাম নোটিফিকেশন ফাংশন
+        function sendEmergencyTelegramNotification(title, bloodGroup, location, amount, problem, refPhone, date = "", time = "", extraDetails = "") {
+            const botToken = "8975147675:AAGrWXFE4-y_L7Sw55P58PL17ukfUlxHAB0";
+            const targets = ["8352480462", "@bazra_blood_club"]; 
+
+            let message = title + "\n\n" +
+                          `🩸 *রক্তের গ্রুপ:* ${bloodGroup}\n` +
+                          `🏥 *স্থান:* ${location}\n` +
+                          `📦 *পরিমাণ:* ${amount}\n`;
+
+            if (date && time) {
+                message += `📅 *রক্তদানের তারিখ ও সময়:* ${date} (${time})\n`;
+            }
+
+            message += `📋 *সমস্যা:* ${problem}\n` +
+                       `📞 *রক্ত গ্রহীতার মোবাইল:* ${refPhone}`;
+
+            if (extraDetails) {
+                message += `\n\n${extraDetails}`;
+            }
+
+            targets.forEach(targetId => {
+                fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ chat_id: targetId, text: message, parse_mode: "Markdown" })
+                }).catch(err => console.error("Telegram Alert Error:", err));
+            });
+        }
+
+        // ২. নতুন ডোনার রেজিস্ট্রেশনের জন্য নির্দিষ্ট অভিনন্দন নোটিফিকেশন ফাংশন (চিহ্নিত অংশগুলো সম্পূর্ণরূপে বাদ দেওয়া হয়েছে)
+        function sendDonorTelegramNotification(donorName, bloodGroup, age, phone, location) {
+            const botToken = "8975147675:AAGrWXFE4-y_L7Sw55P58PL17ukfUlxHAB0";
+            const targets = ["8352480462", "@bazra_blood_club"]; 
+
+            let message = `🎉 *অভিনন্দন! নতুন রক্তদাতা যুক্ত হয়েছেন!* 🎉\n\n` +
+                          `👤 *নাম:* ${donorName}\n` +
+                          `🩸 *রক্তের গ্রুপ:* ${bloodGroup}\n` +
+                          `🎂 *বয়স:* ${age} বছর\n` +
+                          `📍 *ঠিকানা/উপজেলা:* ${location}\n` +
+                          `📞 *মোবাইল নম্বর:* ${phone}\n\n` +
+                          `বজরা ব্লাড ডোনেট ক্লাবে একজন স্বেচ্ছাসেবী রক্তদাতা হিসেবে যুক্ত হওয়ার জন্য আপনাকে আন্তরিক ধন্যবাদ ও অভিনন্দন, *${donorName}* ভাই/বোন! ❤️\n` +
+                          `আপনার এই মহান উদ্যোগ ইনশাআল্লাহ অনেক রোগীর জীবন বাঁচাতে সাহায্য করবে। 🩸✨`;
+
+            targets.forEach(targetId => {
+                fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ chat_id: targetId, text: message, parse_mode: "Markdown" })
+                }).catch(err => console.error("Telegram Alert Error:", err));
+            });
+        }
+
+        function loadDonors() {
+            db.ref('donors').on('value', (snapshot) => {
+                const data = snapshot.val();
+                allDonors = [];
+                if (data) {
+                    Object.keys(data).forEach(key => {
+                        if (data[key] && data[key].name) {
+                            allDonors.push({ id: key, ...data[key] });
+                        }
+                    });
+                }
+                displayDonors();
+            });
+        }
+
+        function loadEmergencies() {
+            db.ref('emergencies').on('value', (snapshot) => {
+                const data = snapshot.val();
+                allEmergencies = [];
+                if (data) {
+                    const currentTime = Date.now();
+                    const sixHours = 6 * 60 * 60 * 1000;
+
+                    Object.keys(data).forEach(key => {
+                        if (data[key] && data[key].problem) {
+                            const emergency = { id: key, ...data[key] };
+                            allEmergencies.push(emergency);
+
+                            if (emergency.status === "Complete" && emergency.donatedPhone) {
+                                const cleanNum = normalizePhone(emergency.donatedPhone);
+                                if (cleanNum.length >= 10) {
+                                    if (!localStorage.getItem('donor_last_donate_' + cleanNum)) {
+                                        localStorage.setItem('donor_last_donate_' + cleanNum, new Date().toISOString());
+                                    }
+                                }
+                            }
+
+                            if (emergency.status === "Pending" && emergency.date && emergency.time) {
+                                const targetDateTime = new Date(`${emergency.date}T${emergency.time}`);
+                                if (currentTime > targetDateTime.getTime()) {
+                                    db.ref('emergencies/' + key).update({ status: "Expired" });
+                                    
+                                    if (!emergency.expiredNotified) {
+                                        db.ref('emergencies/' + key).update({ expiredNotified: true });
+                                        const expiredInfo = `❌ *দুঃখজনক! রক্তের অনুরোধটি মেয়াদোত্তীর্ণ বা ব্যর্থ হয়েছে!*\n\n` +
+                                                            `⚠️ নির্ধারিত সময়ের মধ্যে রক্তদান সম্পন্ন করা সম্ভব হয়নি।`;
+                                        sendEmergencyTelegramNotification("⌛ *বজরা ব্লাড ডোনেট ক্লাব - অনুরোধ মেয়াদোত্তীর্ণ*", emergency.bloodGroup, emergency.location, emergency.amount, emergency.problem, emergency.refPhone, emergency.date, emergency.time, expiredInfo);
+                                    }
+                                }
+                            }
+
+                            if ((emergency.status || "Pending") === "Pending") {
+                                const lastNotified = emergency.lastNotified || emergency.timestamp || currentTime;
+                                if (currentTime - lastNotified >= sixHours) {
+                                    sendEmergencyTelegramNotification(
+                                        "⏰ *জরুরী রক্তের রিমাইন্ডার (৬ ঘণ্টা পর)*",
+                                        emergency.bloodGroup, emergency.location, emergency.amount, emergency.problem, emergency.refPhone, emergency.date, emergency.time
+                                    );
+                                    db.ref('emergencies/' + key).update({ lastNotified: currentTime });
+                                }
+                            }
+                        }
+                    });
+                }
+                displayEmergencies();
+                displayDonationStats();
+            });
+        }
+
+        document.getElementById('donorForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+
+            const donorId = document.getElementById('donorId').value;
+            const donorName = document.getElementById('name').value;
+            const donorBloodGroup = document.getElementById('bloodGroup').value;
+            const donorLocation = document.getElementById('location').value;
+            const donorPhone = document.getElementById('phone').value;
+            const donorAge = document.getElementById('age').value;
+
+            const donorData = {
+                name: donorName,
+                age: donorAge,
+                bloodGroup: donorBloodGroup,
+                phone: donorPhone,
+                location: donorLocation,
+                timestamp: Date.now()
+            };
+
+            if (donorId) {
+                db.ref('donors/' + donorId).update(donorData)
+                    .then(() => {
+                        alert("ডোনারের তথ্য আপডেট করা হয়েছে!");
+                        resetDonorForm();
+                    });
+            } else {
+                db.ref('donors').push(donorData)
+                    .then(() => {
+                        // নতুন ডোনারের জন্য ক্লিন অভিনন্দন মেসেজ কল করা হলো (অতিরিক্ত ফিল্ড ছাড়া)
+                        sendDonorTelegramNotification(donorName, donorBloodGroup, donorAge, donorPhone, donorLocation);
+
+                        alert("রক্তদাতার তথ্য সফলভাবে সেভ হয়েছে!");
+                        resetDonorForm();
+                    });
+            }
+        });
+
+        function resetDonorForm() {
+            document.getElementById('donorForm').reset();
+            document.getElementById('donorId').value = '';
+            document.getElementById('donorFormTitle').innerText = "নতুন রক্তদাতা যুক্ত করুন";
+            document.getElementById('submitBtn').innerText = "ডোনার সেভ করুন";
+            document.getElementById('submitBtn').disabled = false;
+        }
+
+        document.getElementById('emergencyForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const emSubmitBtn = document.getElementById('emSubmitBtn');
+            emSubmitBtn.disabled = true;
+
+            const emId = document.getElementById('emId').value;
+            const bg = document.getElementById('emBloodGroup').value;
+            const loc = document.getElementById('emLocation').value;
+            const amt = document.getElementById('emAmount').value;
+            const prob = document.getElementById('emProblem').value;
+            const rPhone = document.getElementById('emRefPhone').value;
+            const dateVal = document.getElementById('emDate').value;
+            const timeVal = document.getElementById('emTime').value;
+            const currentTime = Date.now();
+
+            const emData = {
+                problem: prob, bloodGroup: bg, amount: amt,
+                date: dateVal,
+                time: timeVal,
+                location: loc, refName: document.getElementById('emRefName').value,
+                refPhone: rPhone, status: "Pending", expiredNotified: false, timestamp: currentTime, lastNotified: currentTime
+            };
+
+            if (emId) {
+                db.ref('emergencies/' + emId).update(emData)
+                    .then(() => {
+                        alert("জরুরী অনুরোধটি এডিট/আপডেট করা হয়েছে!");
+                        resetEmergencyForm();
+                    });
+            } else {
+                db.ref('emergencies').push(emData)
+                    .then(() => {
+                        sendEmergencyTelegramNotification("🚨 *জরুরী রক্তের অনুরোধ!*", bg, loc, amt, prob, rPhone, dateVal, timeVal);
+                        alert("জরুরী অনুরোধ প্রকাশ করা হয়েছে!");
+                        resetEmergencyForm();
+                    });
+            }
+        });
+
+        function resetEmergencyForm() {
+            document.getElementById('emergencyForm').reset();
+            document.getElementById('emId').value = '';
+            document.getElementById('emSubmitBtn').innerText = "জরুরী অনুরোধ প্রকাশ করুন";
+            document.getElementById('emSubmitBtn').disabled = false;
+        }
+
+        window.editEmergency = function(id) {
+            const em = allEmergencies.find(e => e.id === id);
+            if (!em) return;
+            document.getElementById('emId').value = em.id;
+            document.getElementById('emProblem').value = em.problem || '';
+            document.getElementById('emBloodGroup').value = em.bloodGroup || '';
+            document.getElementById('emAmount').value = em.amount || '';
+            document.getElementById('emDate').value = em.date || '';
+            document.getElementById('emTime').value = em.time || '';
+            document.getElementById('emLocation').value = em.location || '';
+            document.getElementById('emRefName').value = em.refName || '';
+            document.getElementById('emRefPhone').value = em.refPhone || '';
+
+            document.getElementById('emSubmitBtn').innerText = "আপডেট করুন";
+            document.getElementById('emergencyForm').scrollIntoView({ behavior: 'smooth' });
+        };
+
+        // ১. সাধারণ ডোনার তালিকা থেকে কল করলে সরাসরি ডিরেক্ট কল চলে যাবে
+        window.checkDonorAndCall = function(donorPhone) {
+            window.location.href = 'tel:' + donorPhone;
+        };
+
+        // ২. জরুরী রক্তের অনুরোধ বক্স থেকে কল করলে ৩ মাসের চেকিং (বাংলা/ইংরেজি ফরম্যাট ম্যাচ করবে)
+        window.checkEmergencyDonorAndCall = function(refPhone) {
+            const donorName = prompt("রক্তদাতার পূর্ণ নাম লিখুন:", "");
+            if (donorName === null || donorName.trim() === "") return;
+
+            const inputPhone = prompt("রক্তদাতার মোবাইল নম্বরটি লিখুন:", "01XXXXXXXXX");
+            if (inputPhone === null || inputPhone.trim() === "") return;
+
+            const cleanInputPhone = normalizePhone(inputPhone);
+            
+            let lastDonateDateStr = null;
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('donor_last_donate_')) {
+                    const savedPhonePart = key.replace('donor_last_donate_', '');
+                    if (savedPhonePart === cleanInputPhone) {
+                        lastDonateDateStr = localStorage.getItem(key);
+                        break;
+                    }
+                }
+            }
+
+            if (lastDonateDateStr) {
+                const lastDonateDate = new Date(lastDonateDateStr);
+                const currentDate = new Date();
+                const diffTime = currentDate - lastDonateDate;
+                const diffDays = diffTime / (1000 * 60 * 60 * 24);
+
+                if (diffDays < 90) {
+                    const formattedDate = lastDonateDate.toLocaleDateString('bn-BD');
+                    const confirmCall = confirm(
+                        `⚠️ সতর্কবার্তা!\n\n` +
+                        `রক্তদাতা (${donorName}): আপনি সর্বশেষ গত ${formattedDate} তারিখে রক্তদান করেছিলেন।\n` +
+                        `সাধারণত দুই রক্তদানের মাঝে কমপক্ষে ৩ মাস (৯০ দিন) বিরতি দেওয়া আবশ্যক। এর মধ্যে আবার রক্তদান করা আপনার স্বাস্থ্যের জন্য ঝুঁকিপূর্ণ হতে পারে।\n\n` +
+                        `জরুরী পরিস্থিতিতে যদি আপনি তবুও রক্তদান করতে চান, তবে এর দায়ভার বজরা ব্লাড ডোনেট ক্লাব নেবে না।\n\n` +
+                        `আপনি কি তবুও কল করতে চান?`
+                    );
+
+                    if (!confirmCall) {
+                        return;
+                    }
+                }
+            }
+
+            window.location.href = 'tel:' + refPhone;
+        };
+
+        window.toggleStatus = function(id, currentStatus, emObj) {
+            if (currentStatus === "Pending") {
+                const donorName = prompt("যে রক্তদাতা রক্তদান করেছেন তার পূর্ণ নাম লিখুন:", "");
+                if (donorName === null) return;
+
+                const donorPhone = prompt("যে রক্তদাতা রক্তদান করেছেন তার মোবাইল নম্বরটি লিখুন:", "01XXXXXXXXX");
+                if (donorPhone === null || donorPhone.trim() === "") return;
+
+                const now = new Date();
+                const donateDateStr = now.toLocaleDateString('bn-BD');
+                const donatedBy = donorName || "অজানা ডোনার";
+                const donatedPhone = donorPhone.trim();
+                
+                const cleanPhone = normalizePhone(donatedPhone);
+                localStorage.setItem('donor_last_donate_' + cleanPhone, now.toISOString());
+
+                db.ref('emergencies/' + id).update({ 
+                    status: "Complete", 
+                    donatedBy: donatedBy, 
+                    donatedPhone: donatedPhone,
+                    donateDate: donateDateStr, 
+                    lastNotified: Date.now() 
+                }).then(() => {
+                    const extraInfo = `🎉 *অভিনন্দন! রক্তদান সফলভাবে সম্পন্ন হয়েছে!* 🎉\n\n` +
+                                      `👤 *রক্তদাতা:* ${donatedBy}\n` +
+                                      `📞 *দাতার মোবাইল:* ${donatedPhone}\n` +
+                                      `📅 *সম্পন্ন হওয়ার তারিখ:* ${donateDateStr}\n` +
+                                      `👤 *রেফারেন্স:* ${emObj.refName || 'নেই'}`;
+                    
+                    sendEmergencyTelegramNotification("✅ *বজরা ব্লাড ডোনেট ক্লাব - রক্তদান সম্পন্ন*", emObj.bloodGroup, emObj.location, emObj.amount, emObj.problem, emObj.refPhone, emObj.date, emObj.time, extraInfo);
+                });
+            } else {
+                db.ref('emergencies/' + id).update({ 
+                    status: "Pending", 
+                    donatedBy: null, 
+                    donatedPhone: null,
+                    donateDate: null, 
+                    lastNotified: Date.now() 
+                });
+            }
+        };
+
+        function displayDonors() {
+            const groupFilter = document.getElementById('filterGroup').value;
+            const locationFilter = document.getElementById('filterLocation').value.toLowerCase();
+            const donorList = document.getElementById('donorList');
+            donorList.innerHTML = '';
+
+            const filtered = allDonors.filter(donor => {
+                const matchGroup = groupFilter === '' || donor.bloodGroup === groupFilter;
+                const matchLocation = donor.location ? donor.location.toLowerCase().includes(locationFilter) : true;
+                return matchGroup && matchLocation;
+            });
+
+            if (filtered.length === 0) {
+                donorList.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">কোনো রক্তদাতার তথ্য পাওয়া যায়নি।</p>';
+                return;
+            }
+
+            filtered.reverse().forEach(donor => {
+                const card = document.createElement('div');
+                card.className = 'donor-card';
+                card.innerHTML = `
+                    <span class="blood-badge">${donor.bloodGroup || 'N/A'}</span>
+                    <h3 style="margin:0 0 10px 0;">${donor.name || 'নাম নেই'}</h3>
+                    <p style="margin: 5px 0;">🎂 <strong>বয়স:</strong> ${donor.age ? donor.age + ' বছর' : 'অজানা'}</p>
+                    <p style="margin: 5px 0;">📍 <strong>ঠিকানা:</strong> ${donor.location || 'অজানা'}</p>
+                    <button onclick="checkDonorAndCall('${donor.phone || ''}')" class="btn-call">📞 কল করুন (${donor.phone || 'নম্বর নেই'})</button>
+                `;
+                donorList.appendChild(card);
+            });
+        }
+
+        document.getElementById('filterGroup').addEventListener('change', displayDonors);
+        document.getElementById('filterLocation').addEventListener('input', displayDonors);
+
+        function displayEmergencies() {
+            const emergencyList = document.getElementById('emergencyList');
+            const completedEmergencyList = document.getElementById('completedEmergencyList');
+            const expiredEmergencyList = document.getElementById('expiredEmergencyList');
+            
+            emergencyList.innerHTML = '';
+            completedEmergencyList.innerHTML = '';
+            expiredEmergencyList.innerHTML = '';
+
+            const now = new Date();
+            const pendingList = [];
+            const completedList = [];
+            const expiredList = [];
+
+            allEmergencies.forEach(em => {
+                if (em.status === "Complete") {
+                    completedList.push(em);
+                } else if (em.status === "Expired") {
+                    expiredList.push(em);
+                } else {
+                    if (em.date && em.time) {
+                        const targetDateTime = new Date(`${em.date}T${em.time}`);
+                        if (now > targetDateTime) {
+                            expiredList.push(em);
+                        } else {
+                            pendingList.push(em);
+                        }
+                    } else {
+                        pendingList.push(em);
+                    }
+                }
+            });
+
+            if (pendingList.length === 0) {
+                emergencyList.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">বর্তমানে কোনো সক্রিয় জরুরী রক্তের অনুরোধ নেই।</p>';
+            } else {
+                pendingList.reverse().forEach(em => emergencyList.appendChild(createEmergencyCard(em, "Pending")));
+            }
+
+            if (completedList.length === 0) {
+                completedEmergencyList.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">কোনো সম্পন্ন হওয়া অনুরোধ নেই।</p>';
+            } else {
+                completedList.reverse().forEach(em => completedEmergencyList.appendChild(createEmergencyCard(em, "Complete")));
+            }
+
+            if (expiredList.length === 0) {
+                expiredEmergencyList.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">কোনো মেয়াদোত্তীর্ণ অনুরোধ নেই।</p>';
+            } else {
+                expiredList.reverse().forEach(em => expiredEmergencyList.appendChild(createExpiredCard(em)));
+            }
+        }
+
+        function displayDonationStats() {
+            const statsList = document.getElementById('donationStatsList');
+            statsList.innerHTML = '';
+            const completedList = allEmergencies.filter(em => em.status === "Complete");
+
+            if (completedList.length === 0) {
+                statsList.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">এখনো কোনো রক্তদান সম্পন্ন হয়নি।</p>';
+                return;
+            }
+
+            const stats = {};
+            completedList.forEach(em => {
+                const donor = em.donatedBy ? `${em.donatedBy} (${em.donatedPhone || 'নম্বর নেই'})` : "অন্যান্য / অজ্ঞাত";
+                let bags = parseInt(em.amount) || 1;
+                stats[donor] = (stats[donor] || 0) + bags;
+            });
+
+            Object.keys(stats).forEach(donorName => {
+                const card = document.createElement('div');
+                card.className = 'stats-item';
+                card.innerHTML = `
+                    <h3 style="margin:0 0 5px 0; color: #17a2b8;">👤 ${donorName}</h3>
+                    <p style="margin: 0; font-size: 1.1em; font-weight: bold;">🩸 মোট রক্তদান: ${stats[donorName]} ব্যাগ</p>
+                `;
+                statsList.appendChild(card);
+            });
+        }
+
+        function createEmergencyCard(em, status) {
+            const isComplete = status === "Complete";
+            const statusClass = isComplete ? "status-complete" : "status-pending";
+            const statusText = isComplete ? "✅ Blood Donate Complete" : "⏳ Blood Donate Pending";
+            const emJSON = JSON.stringify(em).replace(/"/g, '&quot;');
+
+            let instructionHTML = isComplete 
+                ? `<div style="margin-top: 8px; font-size: 0.9em; color: #28a745; background: #e6f4ea; padding: 6px; border-radius: 4px;">
+                        <strong>রক্তদাতা:</strong> ${em.donatedBy || 'অজানা'}<br>
+                        <strong>মোবাইল:</strong> ${em.donatedPhone || 'নেই'}<br>
+                        <strong>তারিখ:</strong> ${em.donateDate || 'অজানা'}
+                   </div>`
+                : `<div class="instruction-text">রক্তদান সম্পন্ন হলে নিচের স্ট্যাটাস বাটনে ক্লিক করুন</div>`;
+
+            const card = document.createElement('div');
+            card.className = `donor-card ${isComplete ? 'completed-item' : 'emergency-item'}`;
+            card.innerHTML = `
+                <span class="blood-badge">${em.bloodGroup || 'N/A'}</span>
+                <h3 style="margin:0 0 8px 0;">সমস্যা: ${em.problem || 'অজানা'}</h3>
+                <p style="margin: 4px 0;">📦 <strong>পরিমাণ:</strong> ${em.amount || 'অজানা'}</p>
+                <p style="margin: 4px 0;">📅 <strong>তারিখ ও সময়:</strong> ${em.date || ''} (${em.time || ''})</p>
+                <p style="margin: 4px 0;">📍 <strong>স্থান:</strong> ${em.location || 'অজানা'}</p>
+                <p style="margin: 4px 0;">👤 <strong>রেফারেন্স:</strong> ${em.refName || 'নেই'}</p>
+                <button onclick="checkEmergencyDonorAndCall('${em.refPhone || ''}')" class="btn-call">📞 কল করুন (${em.refPhone || 'নম্বর নেই'})</button>
+                <button onclick="editEmergency('${em.id}')" style="background: #ffc107; color: #333; margin-top: 8px; padding: 8px; font-size: 14px;">✏️ এডিট করুন</button>
+                <button onclick="toggleStatus('${em.id}', '${status}', ${emJSON})" class="status-badge ${statusClass}">${statusText}</button>
+                ${instructionHTML}
+            `;
+            return card;
+        }
+
+        function createExpiredCard(em) {
+            const card = document.createElement('div');
+            card.className = 'donor-card expired-item';
+            card.innerHTML = `
+                <span class="blood-badge" style="background: #6c757d;">⌛ Expired</span>
+                <h3 style="margin:0 0 8px 0; color: #555;">সমস্যা: ${em.problem || 'অজানা'}</h3>
+                <p style="margin: 4px 0;">📦 <strong>পরিমাণ:</strong> ${em.amount || 'অজানা'}</p>
+                <p style="margin: 4px 0;">📅 <strong>তারিখ ও সময়:</strong> ${em.date || ''} (${em.time || ''})</p>
+                <p style="margin: 4px 0;">📍 <strong>স্থান:</strong> ${em.location || 'অজানা'}</p>
+                <p style="margin: 4px 0;">👤 <strong>রেফারেন্স:</strong> ${em.refName || 'নেই'}</p>
+                <button onclick="checkDonorAndCall('${em.refPhone || ''}')" class="btn-call">📞 কল করুন (${em.refPhone || 'নম্বর নেই'})</button>
+                <div style="margin-top: 8px; font-size: 0.9em; color: #dc3545; background: #f8d7da; padding: 6px; border-radius: 4px; text-align: center; font-weight: bold;">
+                    ⚠️ রক্তদান সম্পন্ন হয়নি / মেয়াদোত্তীর্ণ
+                </div>
+            `;
+            return card;
+        }
+
+        loadDonors();
+        loadEmergencies();
+    </script>
+</body>
+</html>
