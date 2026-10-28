@@ -490,12 +490,12 @@
             document.getElementById('emergencyForm').scrollIntoView({ behavior: 'smooth' });
         };
 
-        // ১. সাধারণ ডোনার তালিকার জন্য সাধারণ কল ফাংশন (কোনো ওয়ার্নিং চেক ছাড়াই সরাসরি কল হবে)
+        // ১. সাধারণ ডোনার তালিকা থেকে কল করলে সরাসরি ডিরেক্ট কল চলে যাবে (কোনো নাম, নম্বর বা ওয়ার্নিং নেই)
         window.checkDonorAndCall = function(donorPhone) {
             window.location.href = 'tel:' + donorPhone;
         };
 
-        // ২. জরুরী রক্তের অনুরোধের তালিকা থেকে কল করার সময় ৩ মাসের রেস্ট্রিকশন ও ওয়ার্নিং পপআপ ফাংশন
+        // ২. জরুরী রক্তের অনুরোধ বক্স বা তালিকা থেকে কল করলে নাম, নম্বর ও ৩ মাসের ওয়ার্নিং চেক করবে
         window.checkEmergencyDonorAndCall = function(refPhone) {
             const donorName = prompt("কল করার আগে রক্তদাতার পূর্ণ নাম লিখুন:", "সৈয়দ ইমরান হোসেন");
             if (donorName === null || donorName.trim() === "") return;
