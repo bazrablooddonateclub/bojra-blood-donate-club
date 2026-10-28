@@ -490,17 +490,18 @@
             document.getElementById('emergencyForm').scrollIntoView({ behavior: 'smooth' });
         };
 
-        // ১. সাধারণ ডোনার তালিকা থেকে কল করলে সরাসরি ডিরেক্ট কল চলে যাবে (কোনো নাম, নম্বর বা ওয়ার্নিং নেই)
+        // ১. সাধারণ ডোনার তালিকা থেকে কল করলে সরাসরি ডিরেক্ট কল চলে যাবে
         window.checkDonorAndCall = function(donorPhone) {
             window.location.href = 'tel:' + donorPhone;
         };
 
-        // ২. জরুরী রক্তের অনুরোধ বক্স বা তালিকা থেকে কল করলে নাম, নম্বর ও ৩ মাসের ওয়ার্নিং চেক করবে
+        // ২. জরুরী রক্তের অনুরোধ বক্স থেকে কল করলে রক্তদাতার নাম ও ফোন নম্বর নিয়ে ৩ মাসের চেকিং হবে, 
+        // কিন্তু ডায়াল হবে রক্তগ্রহীতার মোবাইল নম্বর (refPhone)-এ।
         window.checkEmergencyDonorAndCall = function(refPhone) {
-            const donorName = prompt("কল করার আগে রক্তদাতার পূর্ণ নাম লিখুন:", "সৈয়দ ইমরান হোসেন");
+            const donorName = prompt("রক্তদাতার পূর্ণ নাম লিখুন:", "সৈয়দ ইমরান হোসেন");
             if (donorName === null || donorName.trim() === "") return;
 
-            const inputPhone = prompt("রক্তদাতার মোবাইল নম্বরটি নিশ্চিত করুন:", "01700000000");
+            const inputPhone = prompt("রক্তদাতার মোবাইল নম্বরটি লিখুন:", "01700000000");
             if (inputPhone === null || inputPhone.trim() === "") return;
 
             const cleanInputPhone = normalizePhone(inputPhone);
@@ -529,7 +530,8 @@
                 }
             }
 
-            window.location.href = 'tel:' + inputPhone;
+            // ওয়ার্নিং চেকিং শেষ হওয়ার পর কল যাবে রক্ত গ্রহীতার নম্বরে (refPhone)
+            window.location.href = 'tel:' + refPhone;
         };
 
         window.toggleStatus = function(id, currentStatus, emObj) {
@@ -729,7 +731,7 @@
                 <p style="margin: 4px 0;">📅 <strong>তারিখ ও সময়:</strong> ${em.date || ''} (${em.time || ''})</p>
                 <p style="margin: 4px 0;">📍 <strong>স্থান:</strong> ${em.location || 'অজানা'}</p>
                 <p style="margin: 4px 0;">👤 <strong>রেফারেন্স:</strong> ${em.refName || 'নেই'}</p>
-                <button onclick="checkDonorAndCall('${em.refPhone || ''}')" class="btn-call">📞 কল করুন (${em.refPhone || 'নম্বর নেই'})</button>
+                <button onclick="checkEmergencyDonorAndCall('${em.refPhone || ''}')" class="btn-call">📞 কল করুন (${em.refPhone || 'নম্বর নেই'})</button>
                 <div style="margin-top: 8px; font-size: 0.9em; color: #dc3545; background: #f8d7da; padding: 6px; border-radius: 4px; text-align: center; font-weight: bold;">
                     ⚠️ রক্তদান সম্পন্ন হয়নি / মেয়াদোত্তীর্ণ
                 </div>
