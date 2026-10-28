@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>bojra blood donate club</title>
+    <title>বজরা ব্লাড ডোনেট ক্লাব</title>
     
-    <!-- gogol sarch konsol verifikeson meta tyag -->
+    <!-- গুগল সার্চ কনসোল ভেরিফিকেশন মেটা ট্যাগ -->
     <meta name="google-site-verification" content="3qYBJfYlz_LylQM5zxP4bQars-cwtLEaMNXCQzGVeW8" />
 
-    <!-- fayarebes ophisiyal SDK -->
+    <!-- ফায়ারবেস অফিসিয়াল SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
@@ -80,31 +80,31 @@
     <header>
         <div class="blood-icon-left">🩸</div>
         <div class="blood-icon-right">🩸</div>
-        <h1>bojra blood donate club</h1>
-        <p>joruri proyojone jibon bachano-i amader lokkho</p>
+        <h1>বজরা ব্লাড ডোনেট ক্লাব</h1>
+        <p>জরুরী প্রয়োজনে জীবন বাঁচানোই আমাদের লক্ষ্য</p>
         
-        <!-- telegrame bot linkjukto boks -->
+        <!-- টেলিগ্রাম বট লিংকযুক্ত বক্স -->
         <a href="https://t.me/bozra_blood_club_bot" target="_blank" style="text-decoration: none; display: inline-block; margin-top: 15px; background: rgba(255, 255, 255, 0.2); padding: 10px 15px; border-radius: 8px; position: relative; z-index: 2;">
-            <p style="margin: 0; font-size: 0.95em; font-weight: bold; color: white;">✈️ sochechhay roktodanrarira telegram e jukto hon</p>
+            <p style="margin: 0; font-size: 0.95em; font-weight: bold; color: white;">✈️ স্বেচ্ছায় রক্তদানকারীরা টেলিগ্রাম এ যুক্ত হন</p>
             <span style="font-size: 1.1em; font-weight: bold; background: #fff; color: #0088cc; padding: 4px 10px; border-radius: 4px; display: inline-block; margin-top: 5px;">@bozra_blood_club_bot</span>
         </a>
     </header>
 
     <div class="container">
         
-        <!-- joruri rokter onurodh post korar form -->
+        <!-- জরুরী রক্তের অনুরোধ পোস্ট করার ফর্ম -->
         <div class="card emergency-card-box">
-            <h2 style="color: #c9302c;">🚨 joruri rokter onurodh post korun</h2>
+            <h2 style="color: #c9302c;">🚨 জরুরী রক্তের অনুরোধ পোস্ট করুন</h2>
             <form id="emergencyForm">
                 <input type="hidden" id="emId">
                 <div class="form-group">
-                    <label>rogir somoshya:</label>
-                    <input type="text" id="emProblem" required placeholder="jemon: operason / thalasemiya">
+                    <label>রোগীর সমস্যা:</label>
+                    <input type="text" id="emProblem" required placeholder="যেমন: অপারেশন / থ্যালাসেমিয়া">
                 </div>
                 <div class="form-group">
-                    <label>rokter grop:</label>
+                    <label>রক্তের গ্রুপ:</label>
                     <select id="emBloodGroup" required>
-                        <option value="">grop nirbacon korun</option>
+                        <option value="">গ্রুপ নির্বাচন করুন</option>
                         <option value="A+">A+</option>
                         <option value="A-">A-</option>
                         <option value="B+">B+</option>
@@ -116,82 +116,82 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>rokter poriman:</label>
-                    <input type="text" id="emAmount" required placeholder="jemon: 2 byag">
+                    <label>রক্তের পরিমাণ:</label>
+                    <input type="text" id="emAmount" required placeholder="যেমন: ২ ব্যাগ">
                 </div>
                 <div class="form-group">
-                    <label>roktodaner tarikh:</label>
+                    <label>রক্তদানের তারিখ:</label>
                     <input type="date" id="emDate" required>
                 </div>
                 <div class="form-group">
-                    <label>roktodaner somoy:</label>
+                    <label>রক্তদানের সময়:</label>
                     <input type="time" id="emTime" required>
                 </div>
                 <div class="form-group">
-                    <label>roktoprodaner sthan:</label>
-                    <input type="text" id="emLocation" required placeholder="jemon: bojra hospital, noakhali">
+                    <label>রক্তপ্রদানের স্থান:</label>
+                    <input type="text" id="emLocation" required placeholder="যেমন: বজরা হসপিটাল, নোয়াখালী">
                 </div>
                 <div class="form-group">
-                    <label>referenser nam:</label>
-                    <input type="text" id="emRefName" required placeholder="jemon: nafis, barahinagar">
+                    <label>রেফারেন্সের নাম:</label>
+                    <input type="text" id="emRefName" required placeholder="যেমন: নাফিজ, বারাহিনগর">
                 </div>
                 <div class="form-group">
-                    <label>rokto grohitar mobile number:</label>
+                    <label>রক্ত গ্রহীতার মোবাইল নম্বর:</label>
                     <input type="tel" id="emRefPhone" required placeholder="01700000000">
                 </div>
-                <button type="submit" id="emSubmitBtn" style="background: #c9302c;">joruri onurodh prokash korun</button>
+                <button type="submit" id="emSubmitBtn" style="background: #c9302c;">জরুরী অনুরোধ প্রকাশ করুন</button>
             </form>
         </div>
 
-        <!-- joruri rokter onurodher talika -->
+        <!-- জরুরী রক্তের অনুরোধের তালিকা -->
         <div class="card">
-            <h2>🚨 joruri rokter onurodhsomuh</h2>
+            <h2>🚨 জরুরী রক্তের অনুরোধসমূহ</h2>
             <div class="donor-list" id="emergencyList">
-                <div class="loading">joruri data load hocche...</div>
+                <div class="loading">জরুরী ডেটা লোড হচ্ছে...</div>
             </div>
         </div>
 
-        <!-- somponno howa rokter onurodher talika -->
+        <!-- সম্পন্ন হওয়া রক্তের অনুরোধের তালিকা -->
         <div class="card completed-card-box">
-            <h2 style="color: #28a745; border-bottom: 2px solid #28a745;">✅ somponno howa rokter onurodhsomuh</h2>
+            <h2 style="color: #28a745; border-bottom: 2px solid #28a745;">✅ সম্পন্ন হওয়া রক্তের অনুরোধসমূহ</h2>
             <div class="donor-list" id="completedEmergencyList">
-                <div class="loading">kono somponno howa onurodh nei...</div>
+                <div class="loading">কোনো সম্পন্ন হওয়া অনুরোধ নেই...</div>
             </div>
         </div>
 
-        <!-- meyaduttirno ba osomapto rokter onurodher talika -->
+        <!-- মেয়াদোত্তীর্ণ বা অসমাপ্ত রক্তের অনুরোধের তালিকা -->
         <div class="card expired-card-box">
-            <h2 style="color: #6c757d; border-bottom: 2px solid #6c757d;">⌛ meyaduttirno ba rokto prodan sombhob hoyni</h2>
+            <h2 style="color: #6c757d; border-bottom: 2px solid #6c757d;">⌛ মেয়াদোত্তীর্ণ বা রক্ত প্রদান সম্ভব হয়নি</h2>
             <div class="donor-list" id="expiredEmergencyList">
-                <div class="loading">kono meyaduttirno onurodh nei...</div>
+                <div class="loading">কোনো মেয়াদোত্তীর্ণ অনুরোধ নেই...</div>
             </div>
         </div>
 
-        <!-- roktodaner porisongkhan -->
+        <!-- রক্তদানের পরিসংখ্যান -->
         <div class="card stats-card-box">
-            <h2 style="color: #17a2b8; border-bottom: 2px solid #17a2b8;">🏆 roktodaner porisongkhan (ke koto byag dilen)</h2>
+            <h2 style="color: #17a2b8; border-bottom: 2px solid #17a2b8;">🏆 রক্তদানের পরিসংখ্যান (কে কত ব্যাগ দিলেন)</h2>
             <div class="donor-list" id="donationStatsList">
-                <div class="loading">porisongkhan load hocche...</div>
+                <div class="loading">পরিসংখ্যান লোড হচ্ছে...</div>
             </div>
         </div>
 
-        <!-- notun donor jukto korar form -->
+        <!-- নতুন ডোনার যুক্ত করার ফর্ম -->
         <div class="card" id="donorFormCard">
-            <h2 id="donorFormTitle">notun roktodata jukto korun</h2>
+            <h2 id="donorFormTitle">নতুন রক্তদাতা যুক্ত করুন</h2>
             <form id="donorForm">
                 <input type="hidden" id="donorId">
                 <div class="form-group">
-                    <label>roktodatar nam:</label>
-                    <input type="text" id="name" required placeholder="jemon: syed imran hossen nafis">
+                    <label>রক্তদাতার নাম:</label>
+                    <input type="text" id="name" required placeholder="যেমন: সৈয়দ ইমরান হোসেন নাফিস">
                 </div>
                 <div class="form-group">
-                    <label>boyosh:</label>
-                    <input type="number" id="age" required placeholder="jemon: 25" min="18" max="65">
+                    <label>বয়স:</label>
+                    <input type="number" id="age" required placeholder="যেমন: ২৫" min="18" max="65">
                 </div>
                 <div class="form-group">
-                    <label>rokter grop:</label>
+                    <label>রক্তের গ্রুপ:</label>
                     <select id="bloodGroup" required>
-                        <option value="">grop nirbacon korun</option>
+                        <option value="">গ্রুপ নির্বাচন করুন</option>
                         <option value="A+">A+</option>
                         <option value="A-">A-</option>
                         <option value="B+">B+</option>
@@ -203,23 +203,23 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>phone number:</label>
+                    <label>ফোন নম্বর:</label>
                     <input type="tel" id="phone" required placeholder="01700000000">
                 </div>
                 <div class="form-group">
-                    <label>thikana/upojela:</label>
-                    <input type="text" id="location" required placeholder="jemon: bojra, noakhali">
+                    <label>ঠিকানা/উপজেলা:</label>
+                    <input type="text" id="location" required placeholder="যেমন: বজরা, নোয়াখালী">
                 </div>
-                <button type="submit" id="submitBtn">donor save korun</button>
+                <button type="submit" id="submitBtn">ডোনার সেভ করুন</button>
             </form>
         </div>
 
-        <!-- donor khujar ongsho -->
+        <!-- ডোনার খোঁজার অংশ -->
         <div class="card">
-            <h2>roktodatar talika</h2>
+            <h2>রক্তদাতার তালিকা</h2>
             <div class="search-box">
                 <select id="filterGroup">
-                    <option value="">sokol groper rokto</option>
+                    <option value="">সকল গ্রুপের রক্ত</option>
                     <option value="A+">A+</option>
                     <option value="A-">A-</option>
                     <option value="B+">B+</option>
@@ -229,18 +229,18 @@
                     <option value="AB+">AB+</option>
                     <option value="AB-">AB-</option>
                 </select>
-                <input type="text" id="filterLocation" placeholder="elaka diye khujun...">
+                <input type="text" id="filterLocation" placeholder="এلاকা দিয়ে খুঁজুন...">
             </div>
 
             <div class="donor-list" id="donorList">
-                <div class="loading">data load hocche...</div>
+                <div class="loading">ডেটা লোড হচ্ছে...</div>
             </div>
         </div>
 
     </div>
 
     <footer>
-        <p>&copy; bojra blood donate club - sorbosotto songrokkhito</p>
+        <p>&copy; বজরা ব্লাড ডোনেট ক্লাব - সর্বস্বত্ব সংরক্ষিত</p>
     </footer>
 
     <script>
@@ -273,16 +273,16 @@
             const targets = ["8352480462", "@bazra_blood_club"]; 
 
             let message = title + "\n\n" +
-                          `🩸 *rokter grop:* ${bloodGroup}\n` +
-                          `🏥 *sthan:* ${location}\n` +
-                          `📦 *poriman:* ${amount}\n`;
+                          `🩸 *রক্তের গ্রুপ:* ${bloodGroup}\n` +
+                          `🏥 *স্থান:* ${location}\n` +
+                          `📦 *পরিমাণ:* ${amount}\n`;
 
             if (date && time) {
-                message += `📅 *roktodaner tarikh o somoy:* ${date} (${time})\n`;
+                message += `📅 *রক্তদানের তারিখ ও সময়:* ${date} (${time})\n`;
             }
 
-            message += `📋 *somoshya:* ${problem}\n` +
-                       `📞 *rokto grohitar mobile:* ${refPhone}`;
+            message += `📋 *সমস্যা:* ${problem}\n` +
+                       `📞 *রক্ত গ্রহীতার মোবাইল:* ${refPhone}`;
 
             if (extraDetails) {
                 message += `\n\n${extraDetails}`;
@@ -341,9 +341,9 @@
                                     
                                     if (!emergency.expiredNotified) {
                                         db.ref('emergencies/' + key).update({ expiredNotified: true });
-                                        const expiredInfo = `❌ *duhhonok! rokter onurodh meyaduttirno ba bertho hoyeche!*\n\n` +
-                                                            `⚠️ nirdharito somoyer modhye roktodan somponno kora sombhob hoyni.`;
-                                        sendTelegramNotification("⌛ *bojra blood donate club - onurodh meyaduttirno*", emergency.bloodGroup, emergency.location, emergency.amount, emergency.problem, emergency.refPhone, emergency.date, emergency.time, expiredInfo);
+                                        const expiredInfo = `❌ *দুঃখজনক! রক্তের অনুরোধটি মেয়াদোত্তীর্ণ বা ব্যর্থ হয়েছে!*\n\n` +
+                                                            `⚠️ নির্ধারিত সময়ের মধ্যে রক্তদান সম্পন্ন করা সম্ভব হয়নি।`;
+                                        sendTelegramNotification("⌛ *বজরা ব্লাড ডোনেট ক্লাব - অনুরোধ মেয়াদোত্তীর্ণ*", emergency.bloodGroup, emergency.location, emergency.amount, emergency.problem, emergency.refPhone, emergency.date, emergency.time, expiredInfo);
                                     }
                                 }
                             }
@@ -352,7 +352,7 @@
                                 const lastNotified = emergency.lastNotified || emergency.timestamp || currentTime;
                                 if (currentTime - lastNotified >= sixHours) {
                                     sendTelegramNotification(
-                                        "⏰ *joruri rokter reminder (6 ghonta por)*",
+                                        "⏰ *জরুরী রক্তের রিমাইন্ডার (৬ ঘণ্টা পর)*",
                                         emergency.bloodGroup, emergency.location, emergency.amount, emergency.problem, emergency.refPhone, emergency.date, emergency.time
                                     );
                                     db.ref('emergencies/' + key).update({ lastNotified: currentTime });
@@ -384,13 +384,13 @@
             if (donorId) {
                 db.ref('donors/' + donorId).update(donorData)
                     .then(() => {
-                        alert("donortar tothyo update kora hoyeche!");
+                        alert("ডোনারের তথ্য আপডেট করা হয়েছে!");
                         resetDonorForm();
                     });
             } else {
                 db.ref('donors').push(donorData)
                     .then(() => {
-                        alert("roktodatar tothyo sofolhabe save hoyeche!");
+                        alert("রক্তদাতার তথ্য সফলভাবে সেভ হয়েছে!");
                         resetDonorForm();
                     });
             }
@@ -399,8 +399,8 @@
         function resetDonorForm() {
             document.getElementById('donorForm').reset();
             document.getElementById('donorId').value = '';
-            document.getElementById('donorFormTitle').innerText = "notun roktodata jukto korun";
-            document.getElementById('submitBtn').innerText = "donor save korun";
+            document.getElementById('donorFormTitle').innerText = "নতুন রক্তদাতা যুক্ত করুন";
+            document.getElementById('submitBtn').innerText = "ডোনার সেভ করুন";
             document.getElementById('submitBtn').disabled = false;
         }
 
@@ -430,14 +430,14 @@
             if (emId) {
                 db.ref('emergencies/' + emId).update(emData)
                     .then(() => {
-                        alert("joruri onurodh ti edit/update kora hoyeche!");
+                        alert("জরুরী অনুরোধটি এডিট/আপডেট করা হয়েছে!");
                         resetEmergencyForm();
                     });
             } else {
                 db.ref('emergencies').push(emData)
                     .then(() => {
-                        sendTelegramNotification("🚨 *joruri rokter onurodh!*", bg, loc, amt, prob, rPhone, dateVal, timeVal);
-                        alert("joruri onurodh prokash kora hoyeche!");
+                        sendTelegramNotification("🚨 *জরুরী রক্তের অনুরোধ!*", bg, loc, amt, prob, rPhone, dateVal, timeVal);
+                        alert("জরুরী অনুরোধ প্রকাশ করা হয়েছে!");
                         resetEmergencyForm();
                     });
             }
@@ -446,7 +446,7 @@
         function resetEmergencyForm() {
             document.getElementById('emergencyForm').reset();
             document.getElementById('emId').value = '';
-            document.getElementById('emSubmitBtn').innerText = "joruri onurodh prokash korun";
+            document.getElementById('emSubmitBtn').innerText = "জরুরী অনুরোধ প্রকাশ করুন";
             document.getElementById('emSubmitBtn').disabled = false;
         }
 
@@ -463,7 +463,7 @@
             document.getElementById('emRefName').value = em.refName || '';
             document.getElementById('emRefPhone').value = em.refPhone || '';
 
-            document.getElementById('emSubmitBtn').innerText = "update korun";
+            document.getElementById('emSubmitBtn').innerText = "আপডেট করুন";
             document.getElementById('emergencyForm').scrollIntoView({ behavior: 'smooth' });
         };
 
@@ -473,15 +473,15 @@
 
         window.toggleStatus = function(id, currentStatus, emObj) {
             if (currentStatus === "Pending") {
-                const donorName = prompt("je roktodata roktodan korechen tar purno nam likhun:", "syed imran hossen");
+                const donorName = prompt("যে রক্তদাতা রক্তদান করেছেন তার পূর্ণ নাম লিখুন:", "সৈয়দ ইমরান হোসেন");
                 if (donorName === null) return;
 
-                const donorPhone = prompt("je roktodata roktodan korechen tar mobile number ti likhun:", "01700000000");
+                const donorPhone = prompt("যে রক্তদাতা রক্তদান করেছেন তার মোবাইল নম্বরটি লিখুন:", "01700000000");
                 if (donorPhone === null || donorPhone.trim() === "") return;
 
                 const now = new Date();
                 const donateDateStr = now.toLocaleDateString('bn-BD');
-                const donatedBy = donorName || "ojana donor";
+                const donatedBy = donorName || "অজানা ডোনার";
                 const donatedPhone = donorPhone.trim();
                 const cleanPhone = normalizePhone(donatedPhone);
 
@@ -494,13 +494,13 @@
                     donateDate: donateDateStr, 
                     lastNotified: Date.now() 
                 }).then(() => {
-                    const extraInfo = `🎉 *abhinandan! roktodan sofolhabe somponno hoyeche!* 🎉\n\n` +
-                                      `👤 *roktodata:* ${donatedBy}\n` +
-                                      `📞 *datar mobile:* ${donatedPhone}\n` +
-                                      `📅 *somponno howar tarikh:* ${donateDateStr}\n` +
-                                      `👤 *reference:* ${emObj.refName || 'nei'}`;
+                    const extraInfo = `🎉 *অভিনন্দন! রক্তদান সফলভাবে সম্পন্ন হয়েছে!* 🎉\n\n` +
+                                      `👤 *রক্তদাতা:* ${donatedBy}\n` +
+                                      `📞 *দাতার মোবাইল:* ${donatedPhone}\n` +
+                                      `📅 *সম্পন্ন হওয়ার তারিখ:* ${donateDateStr}\n` +
+                                      `👤 *রেফারেন্স:* ${emObj.refName || 'নেই'}`;
                     
-                    sendTelegramNotification("✅ *bojra blood donate club - roktodan somponno*", emObj.bloodGroup, emObj.location, emObj.amount, emObj.problem, emObj.refPhone, emObj.date, emObj.time, extraInfo);
+                    sendTelegramNotification("✅ *বজরা ব্লাড ডোনেট ক্লাব - রক্তদান সম্পন্ন*", emObj.bloodGroup, emObj.location, emObj.amount, emObj.problem, emObj.refPhone, emObj.date, emObj.time, extraInfo);
                 });
             } else {
                 db.ref('emergencies/' + id).update({ 
@@ -526,7 +526,7 @@
             });
 
             if (filtered.length === 0) {
-                donorList.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">kono roktodatar tothyo paoa jayni.</p>';
+                donorList.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">কোনো রক্তদাতার তথ্য পাওয়া যায়নি।</p>';
                 return;
             }
 
@@ -535,16 +535,16 @@
                 card.className = 'donor-card';
                 card.innerHTML = `
                     <span class="blood-badge">${donor.bloodGroup || 'N/A'}</span>
-                    <h3 style="margin:0 0 10px 0;">${donor.name || 'nam nei'}</h3>
-                    <p style="margin: 5px 0;">🎂 <strong>boyosh:</strong> ${donor.age ? donor.age + ' bochor' : 'ojana'}</p>
-                    <p style="margin: 5px 0;">📍 <strong>thikana:</strong> ${donor.location || 'ojana'}</p>
-                    <button onclick="checkDonorAndCall('${donor.phone || ''}')" class="btn-call">📞 call korun (${donor.phone || 'number nei'})</button>
+                    <h3 style="margin:0 0 10px 0;">${donor.name || 'নাম নেই'}</h3>
+                    <p style="margin: 5px 0;">🎂 <strong>বয়স:</strong> ${donor.age ? donor.age + ' বছর' : 'অজানা'}</p>
+                    <p style="margin: 5px 0;">📍 <strong>ঠিকানা:</strong> ${donor.location || 'অজানা'}</p>
+                    <button onclick="checkDonorAndCall('${donor.phone || ''}')" class="btn-call">📞 কল করুন (${donor.phone || 'নম্বর নেই'})</button>
                 `;
                 donorList.appendChild(card);
             });
         }
 
-        // Event Listeners for Filter Inputs
+        // ফিল্টার ইনপুটগুলোর জন্য ইভেন্ট লিসেনার যুক্ত করা হলো
         document.getElementById('filterGroup').addEventListener('change', displayDonors);
         document.getElementById('filterLocation').addEventListener('input', displayDonors);
 
@@ -582,19 +582,19 @@
             });
 
             if (pendingList.length === 0) {
-                emergencyList.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">bortomane kono sokriyo joruri rokter onurodh nei.</p>';
+                emergencyList.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">বর্তমানে কোনো সক্রিয় জরুরী রক্তের অনুরোধ নেই।</p>';
             } else {
                 pendingList.reverse().forEach(em => emergencyList.appendChild(createEmergencyCard(em, "Pending")));
             }
 
             if (completedList.length === 0) {
-                completedEmergencyList.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">kono somponno howa onurodh nei.</p>';
+                completedEmergencyList.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">কোনো সম্পন্ন হওয়া অনুরোধ নেই।</p>';
             } else {
                 completedList.reverse().forEach(em => completedEmergencyList.appendChild(createEmergencyCard(em, "Complete")));
             }
 
             if (expiredList.length === 0) {
-                expiredEmergencyList.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">kono meyaduttirno onurodh nei.</p>';
+                expiredEmergencyList.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">কোনো মেয়াদোত্তীর্ণ অনুরোধ নেই।</p>';
             } else {
                 expiredList.reverse().forEach(em => expiredEmergencyList.appendChild(createExpiredCard(em)));
             }
@@ -606,13 +606,13 @@
             const completedList = allEmergencies.filter(em => em.status === "Complete");
 
             if (completedList.length === 0) {
-                statsList.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">ekhono kono roktodan somponno hoyni.</p>';
+                statsList.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">এখনো কোনো রক্তদান সম্পন্ন হয়নি।</p>';
                 return;
             }
 
             const stats = {};
             completedList.forEach(em => {
-                const donor = em.donatedBy ? `${em.donatedBy} (${em.donatedPhone || 'number nei'})` : "onnanno / oggat";
+                const donor = em.donatedBy ? `${em.donatedBy} (${em.donatedPhone || 'নম্বর নেই'})` : "অন্যান্য / অজ্ঞাত";
                 let bags = parseInt(em.amount) || 1;
                 stats[donor] = (stats[donor] || 0) + bags;
             });
@@ -622,7 +622,7 @@
                 card.className = 'stats-item';
                 card.innerHTML = `
                     <h3 style="margin:0 0 5px 0; color: #17a2b8;">👤 ${donorName}</h3>
-                    <p style="margin: 0; font-size: 1.1em; font-weight: bold;">🩸 mot roktodan: ${stats[donorName]} byag</p>
+                    <p style="margin: 0; font-size: 1.1em; font-weight: bold;">🩸 মোট রক্তদান: ${stats[donorName]} ব্যাগ</p>
                 `;
                 statsList.appendChild(card);
             });
@@ -636,23 +636,23 @@
 
             let instructionHTML = isComplete 
                 ? `<div style="margin-top: 8px; font-size: 0.9em; color: #28a745; background: #e6f4ea; padding: 6px; border-radius: 4px;">
-                        <strong>roktodata:</strong> ${em.donatedBy || 'ojana'}<br>
-                        <strong>mobile:</strong> ${em.donatedPhone || 'nei'}<br>
-                        <strong>tarikh:</strong> ${em.donateDate || 'ojana'}
+                        <strong>রক্তদাতা:</strong> ${em.donatedBy || 'অজানা'}<br>
+                        <strong>মোবাইল:</strong> ${em.donatedPhone || 'নেই'}<br>
+                        <strong>তারিখ:</strong> ${em.donateDate || 'অজানা'}
                    </div>`
-                : `<div class="instruction-text">roktodan somponno hole nicher status batone click korun</div>`;
+                : `<div class="instruction-text">রক্তদান সম্পন্ন হলে নিচের স্ট্যাটাস বাটনে ক্লিক করুন</div>`;
 
             const card = document.createElement('div');
             card.className = `donor-card ${isComplete ? 'completed-item' : 'emergency-item'}`;
             card.innerHTML = `
                 <span class="blood-badge">${em.bloodGroup || 'N/A'}</span>
-                <h3 style="margin:0 0 8px 0;">somoshya: ${em.problem || 'ojana'}</h3>
-                <p style="margin: 4px 0;">📦 <strong>poriman:</strong> ${em.amount || 'ojana'}</p>
-                <p style="margin: 4px 0;">📅 <strong>tarikh o somoy:</strong> ${em.date || ''} (${em.time || ''})</p>
-                <p style="margin: 4px 0;">📍 <strong>sthan:</strong> ${em.location || 'ojana'}</p>
-                <p style="margin: 4px 0;">👤 <strong>reference:</strong> ${em.refName || 'nei'}</p>
-                <button onclick="checkDonorAndCall('${em.refPhone || ''}')" class="btn-call">📞 call korun (${em.refPhone || 'number nei'})</button>
-                <button onclick="editEmergency('${em.id}')" style="background: #ffc107; color: #333; margin-top: 8px; padding: 8px; font-size: 14px;">✏️ edit korun</button>
+                <h3 style="margin:0 0 8px 0;">সমস্যা: ${em.problem || 'অজানা'}</h3>
+                <p style="margin: 4px 0;">📦 <strong>পরিমাণ:</strong> ${em.amount || 'অজানা'}</p>
+                <p style="margin: 4px 0;">📅 <strong>তারিখ ও সময়:</strong> ${em.date || ''} (${em.time || ''})</p>
+                <p style="margin: 4px 0;">📍 <strong>স্থান:</strong> ${em.location || 'অজানা'}</p>
+                <p style="margin: 4px 0;">👤 <strong>রেফারেন্স:</strong> ${em.refName || 'নেই'}</p>
+                <button onclick="checkDonorAndCall('${em.refPhone || ''}')" class="btn-call">📞 কল করুন (${em.refPhone || 'নম্বর নেই'})</button>
+                <button onclick="editEmergency('${em.id}')" style="background: #ffc107; color: #333; margin-top: 8px; padding: 8px; font-size: 14px;">✏️ এডিট করুন</button>
                 <button onclick="toggleStatus('${em.id}', '${status}', ${emJSON})" class="status-badge ${statusClass}">${statusText}</button>
                 ${instructionHTML}
             `;
@@ -664,14 +664,14 @@
             card.className = 'donor-card expired-item';
             card.innerHTML = `
                 <span class="blood-badge" style="background: #6c757d;">⌛ Expired</span>
-                <h3 style="margin:0 0 8px 0; color: #555;">somoshya: ${em.problem || 'ojana'}</h3>
-                <p style="margin: 4px 0;">📦 <strong>poriman:</strong> ${em.amount || 'ojana'}</p>
-                <p style="margin: 4px 0;">📅 <strong>tarikh o somoy:</strong> ${em.date || ''} (${em.time || ''})</p>
-                <p style="margin: 4px 0;">📍 <strong>sthan:</strong> ${em.location || 'ojana'}</p>
-                <p style="margin: 4px 0;">👤 <strong>reference:</strong> ${em.refName || 'nei'}</p>
-                <button onclick="checkDonorAndCall('${em.refPhone || ''}')" class="btn-call">📞 call korun (${em.refPhone || 'number nei'})</button>
+                <h3 style="margin:0 0 8px 0; color: #555;">সমস্যা: ${em.problem || 'অজানা'}</h3>
+                <p style="margin: 4px 0;">📦 <strong>পরিমাণ:</strong> ${em.amount || 'অজানা'}</p>
+                <p style="margin: 4px 0;">📅 <strong>তারিখ ও সময়:</strong> ${em.date || ''} (${em.time || ''})</p>
+                <p style="margin: 4px 0;">📍 <strong>স্থান:</strong> ${em.location || 'অজানা'}</p>
+                <p style="margin: 4px 0;">👤 <strong>রেফারেন্স:</strong> ${em.refName || 'নেই'}</p>
+                <button onclick="checkDonorAndCall('${em.refPhone || ''}')" class="btn-call">📞 কল করুন (${em.refPhone || 'নম্বর নেই'})</button>
                 <div style="margin-top: 8px; font-size: 0.9em; color: #dc3545; background: #f8d7da; padding: 6px; border-radius: 4px; text-align: center; font-weight: bold;">
-                    ⚠️ roktodan somponno hoyni / meyaduttirno
+                    ⚠️ রক্তদান সম্পন্ন হয়নি / মেয়াদোত্তীর্ণ
                 </div>
             `;
             return card;
