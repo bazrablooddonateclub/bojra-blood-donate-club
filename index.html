@@ -169,7 +169,7 @@
 
         <!-- রক্তদানের পরিসংখ্যান -->
         <div class="card stats-card-box">
-            <h2 style="color: #17a2b8; border-bottom: 2px solid #17a2b8;">🏆 রক্তদানের পরিসংখ্যান (কে কত ব্যাগ দিলেন)</h2>
+            <h2 style="color: #17a2b8; border-bottom: 2px solid #17a2b8;">🏆 রক্তদানের পরিসংখ্যান ( কে কত ব্যাগ দিলেন)</h2>
             <div class="donor-list" id="donationStatsList">
                 <div class="loading">পরিসংখ্যান লোড হচ্ছে...</div>
             </div>
@@ -395,9 +395,8 @@
             } else {
                 db.ref('donors').push(donorData)
                     .then(() => {
-                        // নতুন ডোনার যুক্ত হলে টেলিগ্রামে অভিনন্দন মেসেজ পাঠানোর কোড
-                        const welcomeTitle = `🎉 *অভিনন্দন! নতুন রক্তদাতা যুক্ত হয়েছেন!* 🎉`;
-                        const welcomeMsg = `বজরা ব্লাড ডোনেট ক্লাবে একজন স্বেচ্ছাসেবী রক্তদাতা হিসেবে যুক্ত হওয়ার জন্য আপনাকে আন্তরিক ধন্যবাদ ও অভিনন্দন, *${donorName}* ভাই/বোন! ❤️\n\n` +
+                        const welcomeTitle = `🎉 *অভিনন্দন! নতুন রক্তদাতা যুক্ত হয়েছেন!* 🎉`;
+                        const welcomeMsg = `বজরা ব্লাড ডোনেট ক্লাবে একজন স্বেচ্ছাসেবী রক্তদাতা হিসেবে যুক্ত হওয়ার জন্য আপনাকে আন্তরিক ধন্যবাদ ও অভিনন্দন, *${donorName}* ভাই/বোন! ❤️\n\n` +
                                            `🩸 *রক্তের গ্রুপ:* ${donorBloodGroup}\n` +
                                            `📍 *ঠিকানা/উপজেলা:* ${donorLocation}\n\n` +
                                            `আপনার এই মহান উদ্যোগ ইনশাআল্লাহ অনেক রোগীর জীবন বাঁচাতে সাহায্য করবে। 🩸✨`;
@@ -491,8 +490,41 @@
             document.getElementById('emergencyForm').scrollIntoView({ behavior: 'smooth' });
         };
 
+        // ৩ মাসের রেস্ট্রিকশন ও ওয়ার্নিং পপআপযুক্ত কল ফাংশন
         window.checkDonorAndCall = function(donorPhone) {
-            window.location.href = 'tel:' + donorPhone;
+            const donorName = prompt("কল করার আগে রক্তদাতার পূর্ণ নাম লিখুন:", "সৈয়দ ইমরান হোসেন");
+            if (donorName === null || donorName.trim() === "") return;
+
+            const inputPhone = prompt("রক্তদাতার মোবাইল নম্বরটি নিশ্চিত করুন:", donorPhone || "01700000000");
+            if (inputPhone === null || inputPhone.trim() === "") return;
+
+            const cleanInputPhone = normalizePhone(inputPhone);
+            const lastDonateKey = 'donor_last_donate_' + cleanInputPhone;
+            const lastDonateDateStr = localStorage.getItem(lastDonateKey);
+
+            if (lastDonateDateStr) {
+                const lastDonateDate = new Date(lastDonateDateStr);
+                const currentDate = new Date();
+                const diffTime = currentDate - lastDonateDate;
+                const diffDays = diffTime / (1000 * 60 * 60 * 24);
+
+                if (diffDays < 90) {
+                    const formattedDate = lastDonateDate.toLocaleDateString('bn-BD');
+                    const confirmCall = confirm(
+                        `⚠️ সতর্কবার্তা!\n\n` +
+                        `রক্তদাতা (${donorName}): আপনি সর্বশেষ গত ${formattedDate} তারিখে রক্তদান করেছিলেন।\n` +
+                        `সাধারণত দুই রক্তদানের মাঝে কমপক্ষে ৩ মাস (৯০ দিন) বিরতি দেওয়া আবশ্যক। এর মধ্যে আবার রক্তদান করা আপনার স্বাস্থ্যের জন্য ঝুঁকিপূর্ণ হতে পারে।\n\n` +
+                        `জরুরী পরিস্থিতিতে যদি আপনি তবুও রক্তদান করতে চান, তবে এর দায়ভার বজরা ব্লাড ডোনেট ক্লাব নেবে না।\n\n` +
+                        `আপনি কি তবুও কল করতে চান?`
+                    );
+
+                    if (!confirmCall) {
+                        return;
+                    }
+                }
+            }
+
+            window.location.href = 'tel:' + inputPhone;
         };
 
         window.toggleStatus = function(id, currentStatus, emObj) {
@@ -568,7 +600,6 @@
             });
         }
 
-        // ফিল্টার ইনপুটগুলোর জন্য ইভেন্ট লিসেনার যুক্ত করা হলো
         document.getElementById('filterGroup').addEventListener('change', displayDonors);
         document.getElementById('filterLocation').addEventListener('input', displayDonors);
 
@@ -693,7 +724,7 @@
                 <p style="margin: 4px 0;">📅 <strong>তারিখ ও সময়:</strong> ${em.date || ''} (${em.time || ''})</p>
                 <p style="margin: 4px 0;">📍 <strong>স্থান:</strong> ${em.location || 'অজানা'}</p>
                 <p style="margin: 4px 0;">👤 <strong>রেফারেন্স:</strong> ${em.refName || 'নেই'}</p>
-                <button onclick="checkDonorAndCall('${em.refPhone || ''}')" class="btn-call">📞 কল করুন (${em.refPhone || 'নম্বর নেই'})</button>
+                <button onclick="checkDonorAndCall('${em.refPhone || ''}')" class="btn-call">📞 কল করার আগে নিশ্চিত করুন</button>
                 <div style="margin-top: 8px; font-size: 0.9em; color: #dc3545; background: #f8d7da; padding: 6px; border-radius: 4px; text-align: center; font-weight: bold;">
                     ⚠️ রক্তদান সম্পন্ন হয়নি / মেয়াদোত্তীর্ণ
                 </div>
