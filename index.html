@@ -303,12 +303,12 @@
             });
         }
 
-        // ২. শুধুমাত্র নতুন ডোনার রেজিস্ট্রেশনের জন্য নির্দিষ্ট অভিনন্দন নোটিফিকেশন ফাংশন (কোনো অতিরিক্ত ফিল্ড নেই)
+        // ২. নতুন ডোনার রেজিস্ট্রেশনের জন্য নির্দিষ্ট অভিনন্দন নোটিফিকেশন ফাংশন (চিহ্নিত অংশগুলো সম্পূর্ণরূপে বাদ দেওয়া হয়েছে)
         function sendDonorTelegramNotification(donorName, bloodGroup, age, phone, location) {
             const botToken = "8975147675:AAGrWXFE4-y_L7Sw55P58PL17ukfUlxHAB0";
             const targets = ["8352480462", "@bazra_blood_club"]; 
 
-            let message = `🎉 *অভিনন্দন! ডোনার লিস্টে নতুন ব্লাড ডোনার যুক্ত হয়েছেন!* 🎉\n\n` +
+            let message = `🎉 *অভিনন্দন! নতুন রক্তদাতা যুক্ত হয়েছেন!* 🎉\n\n` +
                           `👤 *নাম:* ${donorName}\n` +
                           `🩸 *রক্তের গ্রুপ:* ${bloodGroup}\n` +
                           `🎂 *বয়স:* ${age} বছর\n` +
@@ -425,7 +425,7 @@
             } else {
                 db.ref('donors').push(donorData)
                     .then(() => {
-                        // নতুন ডোনারের জন্য নির্দিষ্ট ক্লিন অভিনন্দন মেসেজ কল করা হলো
+                        // নতুন ডোনারের জন্য ক্লিন অভিনন্দন মেসেজ কল করা হলো (অতিরিক্ত ফিল্ড ছাড়া)
                         sendDonorTelegramNotification(donorName, donorBloodGroup, donorAge, donorPhone, donorLocation);
 
                         alert("রক্তদাতার তথ্য সফলভাবে সেভ হয়েছে!");
