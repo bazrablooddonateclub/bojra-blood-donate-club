@@ -273,8 +273,8 @@
             return digits;
         }
 
-        // জরুরী রক্তের অনুরোধের জন্য টেলিগ্রাম নোটিফিকেশন
-        function sendEmergencyTelegramNotification(title, bloodGroup, location, amount, problem, refPhone, date = "", time = "", extraDetails = "") {
+        // জরুরী রক্তের অনুরোধের জন্য টেলিগ্রাম নোটিফিকেশন (এখানে রেফারেন্সের নাম যুক্ত করা হয়েছে)
+        function sendEmergencyTelegramNotification(title, bloodGroup, location, amount, problem, refName, refPhone, date = "", time = "", extraDetails = "") {
             const botToken = "8975147675:AAGrWXFE4-y_L7Sw55P58PL17ukfUlxHAB0";
             const targets = ["8352480462", "@bazra_blood_club"]; 
 
@@ -288,6 +288,7 @@
             }
 
             message += `📋 *সমস্যা:* ${problem}\n` +
+                       `👤 *রেফারেন্সের নাম:* ${refName || 'নেই'}\n` +
                        `📞 *রক্ত গ্রহীতার মোবাইল:* ${refPhone}`;
 
             if (extraDetails) {
@@ -303,7 +304,7 @@
             });
         }
 
-        // নতুন ডোনার রেজিস্ট্রেশনের জন্য পরিষ্কার অভিনন্দন নোটিফিকেশন (বয়স অপশনাল হ্যান্ডেল করা হয়েছে)
+        // নতুন ডোনার রেজিস্ট্রেশনের জন্য পরিষ্কার অভিনন্দন নোটিফিকেশন
         function sendDonorTelegramNotification(donorName, bloodGroup, age, phone, location) {
             const botToken = "8975147675:AAGrWXFE4-y_L7Sw55P58PL17ukfUlxHAB0";
             const targets = ["8352480462", "@bazra_blood_club"]; 
@@ -376,7 +377,7 @@
                                         db.ref('emergencies/' + key).update({ expiredNotified: true });
                                         const expiredInfo = `❌ *দুঃখজনক! রক্তের অনুরোধটি মেয়াদোত্তীর্ণ বা ব্যর্থ হয়েছে!*\n\n` +
                                                             `⚠️ নির্ধারিত সময়ের মধ্যে রক্তদান সম্পন্ন করা সম্ভব হয়নি।`;
-                                        sendEmergencyTelegramNotification("⌛ *বজরা ব্লাড ডোনেট ক্লাব - অনুরোধ মেয়াদোত্তীর্ণ*", emergency.bloodGroup, emergency.location, emergency.amount, emergency.problem, emergency.refPhone, emergency.date, emergency.time, expiredInfo);
+                                        sendEmergencyTelegramNotification("⌛ *বজরা ব্লাড ডোনেট ক্লাব - অনুরোধ মেয়াদোত্তীর্ণ*", emergency.bloodGroup, emergency.location, emergency.amount, emergency.problem, emergency.refName, emergency.refPhone, emergency.date, emergency.time, expiredInfo);
                                     }
                                 }
                             }
@@ -386,7 +387,7 @@
                                 if (currentTime - lastNotified >= sixHours) {
                                     sendEmergencyTelegramNotification(
                                         "⏰ *জরুরী রক্তের রিমাইন্ডার (৬ ঘণ্টা পর)*",
-                                        emergency.bloodGroup, emergency.location, emergency.amount, emergency.problem, emergency.refPhone, emergency.date, emergency.time
+                                        emergency.bloodGroup, emergency.location, emergency.amount, emergency.problem, emergency.refName, emergency.refPhone, emergency.date, emergency.time
                                     );
                                     db.ref('emergencies/' + key).update({ lastNotified: currentTime });
                                 }
@@ -454,6 +455,7 @@
             const loc = document.getElementById('emLocation').value;
             const amt = document.getElementById('emAmount').value;
             const prob = document.getElementById('emProblem').value;
+            const rName = document.getElementById('emRefName').value;
             const rPhone = document.getElementById('emRefPhone').value;
             const dateVal = document.getElementById('emDate').value;
             const timeVal = document.getElementById('emTime').value;
@@ -463,7 +465,7 @@
                 problem: prob, bloodGroup: bg, amount: amt,
                 date: dateVal,
                 time: timeVal,
-                location: loc, refName: document.getElementById('emRefName').value,
+                location: loc, refName: rName,
                 refPhone: rPhone, status: "Pending", expiredNotified: false, timestamp: currentTime, lastNotified: currentTime
             };
 
@@ -476,7 +478,7 @@
             } else {
                 db.ref('emergencies').push(emData)
                     .then(() => {
-                        sendEmergencyTelegramNotification("🚨 *জরুরী রক্তের অনুরোধ!*", bg, loc, amt, prob, rPhone, dateVal, timeVal);
+                        sendEmergencyTelegramNotification("🚨 *জরুরী রক্তের অনুরোধ!*", bg, loc, amt, prob, rName, rPhone, dateVal, timeVal);
                         alert("জরুরী অনুরোধ প্রকাশ করা হয়েছে!");
                         resetEmergencyForm();
                     });
@@ -588,7 +590,7 @@
                                       `📅 *সম্পন্ন হওয়ার তারিখ:* ${donateDateStr}\n` +
                                       `👤 *রেফারেন্স:* ${emObj.refName || 'নেই'}`;
                     
-                    sendEmergencyTelegramNotification("✅ *বজরা ব্লাড ডোনেট ক্লাব - রক্তদান সম্পন্ন*", emObj.bloodGroup, emObj.location, emObj.amount, emObj.problem, emObj.refPhone, emObj.date, emObj.time, extraInfo);
+                    sendEmergencyTelegramNotification("✅ *বজরা ব্লাড ডোনেট ক্লাব - রক্তদান সম্পন্ন*", emObj.bloodGroup, emObj.location, emObj.amount, emObj.problem, emObj.refName, emObj.refPhone, emObj.date, emObj.time, extraInfo);
                 });
             } else {
                 db.ref('emergencies/' + id).update({ 
