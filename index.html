@@ -273,7 +273,7 @@
             return digits;
         }
 
-        // জরুরী রক্তের অনুরোধের জন্য টেলিগ্রাম নোটিফিকেশন (এখানে রেফারেন্সের নাম যুক্ত করা হয়েছে)
+        // জরুরী রক্তের অনুরোধের জন্য টেলিগ্রাম নোটিফিকেশন ফাংশন
         function sendEmergencyTelegramNotification(title, bloodGroup, location, amount, problem, refName, refPhone, date = "", time = "", extraDetails = "") {
             const botToken = "8975147675:AAGrWXFE4-y_L7Sw55P58PL17ukfUlxHAB0";
             const targets = ["8352480462", "@bazra_blood_club"]; 
@@ -478,6 +478,7 @@
             } else {
                 db.ref('emergencies').push(emData)
                     .then(() => {
+                        // ফিক্সড: এখানে নিখুঁত অর্ডারে আর্গুমেন্ট পাস করা হয়েছে যাতে টেলিগ্রাম নোটিফিকেশন সফলভাবে যায়
                         sendEmergencyTelegramNotification("🚨 *জরুরী রক্তের অনুরোধ!*", bg, loc, amt, prob, rName, rPhone, dateVal, timeVal);
                         alert("জরুরী অনুরোধ প্রকাশ করা হয়েছে!");
                         resetEmergencyForm();
@@ -509,12 +510,10 @@
             document.getElementById('emergencyForm').scrollIntoView({ behavior: 'smooth' });
         };
 
-        // ১. সাধারণ ডোনার তালিকা থেকে কল করলে সরাসরি ডিরেক্ট কল চলে যাবে
         window.checkDonorAndCall = function(donorPhone) {
             window.location.href = 'tel:' + donorPhone;
         };
 
-        // ২. জরুরী রক্তের অনুরোধ বক্স থেকে কল করলে ৩ মাসের চেকিং
         window.checkEmergencyDonorAndCall = function(refPhone) {
             const donorName = prompt("রক্তদাতার পূর্ণ নাম লিখুন:", "");
             if (donorName === null || donorName.trim() === "") return;
@@ -546,7 +545,7 @@
                     const formattedDate = lastDonateDate.toLocaleDateString('bn-BD');
                     const confirmCall = confirm(
                         `⚠️ সতর্কবার্তা!\n\n` +
-                        `রক্তদাতা (${donorName}): আপনি সর্বশেষ গত ${formattedDate} তারিখে রক্তদান করেছিলেন।\n` +
+                        `রক্তদাতা (${donorName}): আপনি সর্বশেষ গত ${formattedDate} তারিখে রক্তদান করেছিলেনমূলক\n` +
                         `সাধারণত দুই রক্তদানের মাঝে কমপক্ষে ৩ মাস (৯০ দিন) বিরতি দেওয়া আবশ্যক। এর মধ্যে আবার রক্তদান করা আপনার স্বাস্থ্যের জন্য ঝুঁকিপূর্ণ হতে পারে।\n\n` +
                         `জরুরী পরিস্থিতিতে যদি আপনি তবুও রক্তদান করতে চান, তবে এর দায়ভার বজরা ব্লাড ডোনেট ক্লাব নেবে না।\n\n` +
                         `আপনি কি তবুও কল করতে চান?`
