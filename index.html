@@ -71,6 +71,12 @@
         .status-complete { background: #28a745; color: white; }
         .instruction-text { font-size: 0.8em; color: #666; text-align: center; margin-top: 5px; font-style: italic; }
 
+        /* ভিউ মোর মোডাল স্টাইল */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); }
+        .modal-content { background-color: #fefefe; margin: 10% auto; padding: 20px; border: 1px solid #888; width: 90%; max-width: 600px; border-radius: 10px; position: relative; }
+        .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close-btn:hover { color: black; }
+
         footer { text-align: center; padding: 20px; background: #333; color: white; margin-top: 40px; }
         .loading { text-align: center; color: #666; font-style: italic; grid-column: 1/-1; }
     </style>
@@ -159,11 +165,23 @@
             </div>
         </div>
 
-        <!-- মেয়াদোত্তীর্ণ বা অসমাপ্ত রক্তের অনুরোধের তালিকা -->
+        <!-- মেয়াদোত্তীর্ণ বা রক্ত প্রদান সম্ভব হয়নি (সংখ্যা ও ভিউ মোর বাটন) -->
         <div class="card expired-card-box">
-            <h2 style="color: #6c757d; border-bottom: 2px solid #6c757d;">⌛ মেয়াদোত্তীর্ণ বা রক্ত প্রদান সম্ভব হয়নি</h2>
-            <div class="donor-list" id="expiredEmergencyList">
-                <div class="loading">কোনো মেয়াদোত্তীর্ণ অনুরোধ নেই...</div>
+            <h2 style="color: #6c757d; border-bottom: 2px solid #6c757d; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <span>⌛ মেয়াদোত্তীর্ণ বা রক্ত প্রদান সম্ভব হয়নি: <strong id="expiredCountBadge" style="color: #d9534f;">০ টি</strong></span>
+                <button onclick="openExpiredModal()" style="background: #6c757d; color: white; border: none; padding: 6px 15px; border-radius: 5px; cursor: pointer; font-size: 14px; width: auto;">👁️ ভিউ মোর</button>
+            </h2>
+            <p style="margin: 5px 0 0 0; color: #666; font-size: 0.95em;">বিস্তারিত দেখতে 'ভিউ মোর' বাটনে ক্লিক করুন।</p>
+        </div>
+
+        <!-- মেয়াদোত্তীর্ণ অনুরোধসমূহের ডিটেইলস পপ-আপ মোডাল (Dashboard) -->
+        <div id="expiredModal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeExpiredModal()">&times;</span>
+                <h2 style="color: #6c757d; border-bottom: 2px solid #6c757d; margin-bottom: 15px;">⌛ মেয়াদোত্তীর্ণ অনুরোধসমূহের বিস্তারিত ড্যাশবোর্ড</h2>
+                <div class="donor-list" id="expiredEmergencyList" style="max-height: 400px; overflow-y: auto;">
+                    <div class="loading">কোনো মেয়াদোত্তীর্ণ অনুরোধ নেই...</div>
+                </div>
             </div>
         </div>
 
@@ -271,6 +289,22 @@
                 digits = digits.slice(-11);
             }
             return digits;
+        }
+
+        // মোডাল ওপেন এবং ক্লোজ ফাংশন
+        function openExpiredModal() {
+            document.getElementById('expiredModal').style.display = 'block';
+        }
+
+        function closeExpiredModal() {
+            document.getElementById('expiredModal').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('expiredModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
         }
 
         // জরুরী রক্তের অনুরোধের জন্য টেলিগ্রাম নোটিফিকেশন ফাংশন
@@ -478,7 +512,6 @@
             } else {
                 db.ref('emergencies').push(emData)
                     .then(() => {
-                        // ফিক্সড: এখানে নিখুঁত অর্ডারে আর্গুমেন্ট পাস করা হয়েছে যাতে টেলিগ্রাম নোটিফিকেশন সফলভাবে যায়
                         sendEmergencyTelegramNotification("🚨 *জরুরী রক্তের অনুরোধ!*", bg, loc, amt, prob, rName, rPhone, dateVal, timeVal);
                         alert("জরুরী অনুরোধ প্রকাশ করা হয়েছে!");
                         resetEmergencyForm();
@@ -545,7 +578,7 @@
                     const formattedDate = lastDonateDate.toLocaleDateString('bn-BD');
                     const confirmCall = confirm(
                         `⚠️ সতর্কবার্তা!\n\n` +
-                        `রক্তদাতা (${donorName}): আপনি সর্বশেষ গত ${formattedDate} তারিখে রক্তদান করেছিলেনমূলক\n` +
+                        `রক্তদাতা (${donorName}): আপনি সর্বশেষ গত ${formattedDate} তারিখে রক্তদান করেছিলেন।\n` +
                         `সাধারণত দুই রক্তদানের মাঝে কমপক্ষে ৩ মাস (৯০ দিন) বিরতি দেওয়া আবশ্যক। এর মধ্যে আবার রক্তদান করা আপনার স্বাস্থ্যের জন্য ঝুঁকিপূর্ণ হতে পারে।\n\n` +
                         `জরুরী পরিস্থিতিতে যদি আপনি তবুও রক্তদান করতে চান, তবে এর দায়ভার বজরা ব্লাড ডোনেট ক্লাব নেবে না।\n\n` +
                         `আপনি কি তবুও কল করতে চান?`
@@ -643,6 +676,7 @@
             const emergencyList = document.getElementById('emergencyList');
             const completedEmergencyList = document.getElementById('completedEmergencyList');
             const expiredEmergencyList = document.getElementById('expiredEmergencyList');
+            const expiredCountBadge = document.getElementById('expiredCountBadge');
             
             emergencyList.innerHTML = '';
             completedEmergencyList.innerHTML = '';
@@ -671,6 +705,9 @@
                     }
                 }
             });
+
+            // মেয়াদোত্তীর্ণ বা অসমাপ্ত অনুরোধের সংখ্যা আপডেট করা
+            expiredCountBadge.innerText = expiredList.length + " টি";
 
             if (pendingList.length === 0) {
                 emergencyList.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">বর্তমানে কোনো সক্রিয় জরুরী রক্তের অনুরোধ নেই।</p>';
@@ -750,6 +787,7 @@
             return card;
         }
 
+        // মেয়াদোত্তীর্ণ কার্ড থেকে 'কল করুন' বাটন বাদ দিয়ে ড্যাশবোর্ডের জন্য তৈরি করা হয়েছে
         function createExpiredCard(em) {
             const card = document.createElement('div');
             card.className = 'donor-card expired-item';
@@ -760,7 +798,6 @@
                 <p style="margin: 4px 0;">📅 <strong>তারিখ ও সময়:</strong> ${em.date || ''} (${em.time || ''})</p>
                 <p style="margin: 4px 0;">📍 <strong>স্থান:</strong> ${em.location || 'অজানা'}</p>
                 <p style="margin: 4px 0;">👤 <strong>রেফারেন্স:</strong> ${em.refName || 'নেই'}</p>
-                <button onclick="checkDonorAndCall('${em.refPhone || ''}')" class="btn-call">📞 কল করুন (${em.refPhone || 'নম্বর নেই'})</button>
                 <div style="margin-top: 8px; font-size: 0.9em; color: #dc3545; background: #f8d7da; padding: 6px; border-radius: 4px; text-align: center; font-weight: bold;">
                     ⚠️ রক্তদান সম্পন্ন হয়নি / মেয়াদোত্তীর্ণ
                 </div>
